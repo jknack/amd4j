@@ -1,0 +1,3 @@
+requirejs({
+    name: 'requirejs'
+});
