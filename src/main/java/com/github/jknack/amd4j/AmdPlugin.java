@@ -49,18 +49,23 @@ public class AmdPlugin implements OptimizerPlugin {
     public AmdVisitor(final Config config, final Module module) {
       this.config = config;
       this.module = module;
-      StringBuilder content = module.content;
       lines.add(0);
-      for (int idx = 0; idx < content.length(); idx++) {
-        int ch = content.charAt(idx);
+    }
+
+    public int lineAt(final int line) {
+      int idx = lines.get(lines.size() - 1);
+      while(lines.size() <= line && idx < module.content.length()) {
+        int ch = module.content.charAt(idx);
         if (ch == '\n') {
           lines.add(idx + 1);
         }
+        idx++;
       }
+      return lines.get(line);
     }
 
     public void shim() {
-      if(!defineFound) {
+      if (!defineFound) {
         Shim shim = config.getShim(module.name);
         if (shim != null) {
           String defineFn = shim.shim(module);
@@ -85,7 +90,7 @@ public class AmdPlugin implements OptimizerPlugin {
       String useStrict = "use strict";
       if (useStrict.equals(node.getValue()) && !config.isUseStrict()
           && node.getParent() instanceof ExpressionStatement) {
-        int offset = lines.get(node.getLineno() - 1) + this.offset;
+        int offset = lineAt(node.getLineno() - 1) + this.offset;
         int start = module.content.indexOf(useStrict, offset) - 1;
         int end = module.content.indexOf(";", start) + 1;
         module.content.replace(start, end, "");
@@ -113,18 +118,24 @@ public class AmdPlugin implements OptimizerPlugin {
 
     private void visitDefine(final FunctionCall node) {
       List<AstNode> arguments = node.getArguments();
-      boolean hasName = true;
-      boolean hasDep = true;
+      final boolean hasName;
+      final boolean hasDep;
       if (arguments.size() == 0) {
         hasName = false;
         hasDep = false;
+      } else if (arguments.size() == 1) {
+        hasName = arguments.get(0) instanceof StringLiteral;
+        hasDep = arguments.get(0) instanceof ArrayLiteral;
       } else {
-        AstNode arg0 = arguments.get(0);
-        hasName = arg0 instanceof StringLiteral;
-        hasDep = arg0 instanceof ArrayLiteral;
+        hasName = arguments.get(0) instanceof StringLiteral;
+        if (!hasName) {
+          hasDep = arguments.get(0) instanceof ArrayLiteral;
+        } else {
+          hasDep = arguments.get(1) instanceof ArrayLiteral;
+        }
       }
       // Should we add module's name?
-      int offset = lines.get(node.getLineno() - 1) + node.getLp() + this.offset;
+      int offset = lineAt(node.getLineno() - 1) + node.getLp() + this.offset;
       int idx = 1;
       if (!hasName) {
         String chunk = "'" + module.name + "',";
@@ -172,15 +183,6 @@ public class AmdPlugin implements OptimizerPlugin {
     AmdVisitor visitor = new AmdVisitor(config, module);
     AstRoot node = parser.parse(module.content.toString(), module.name, 1);
     node.visit(visitor);
-    // make sure it has a ';'
-    StringBuilder content = module.content;
-    int idx = content.length() - 1;
-    while (idx >= 0 && Character.isWhitespace(content.charAt(idx))) {
-      idx--;
-    }
-    if (idx >= 0 && idx < content.length() && content.charAt(idx) != ';') {
-      content.append(';');
-    }
     visitor.shim();
     return module;
   }

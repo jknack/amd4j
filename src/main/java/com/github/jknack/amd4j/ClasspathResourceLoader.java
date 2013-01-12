@@ -25,19 +25,42 @@ import org.apache.commons.io.IOUtils;
 
 public class ClasspathResourceLoader implements ResourceLoader {
 
+  private interface StreamHandler<V> {
+    V handle(InputStream in) throws IOException;
+  }
+
+  @Override
+  public boolean exists(final ResourceURI uri) throws IOException {
+    return process(uri, new StreamHandler<Boolean>() {
+      @Override
+      public Boolean handle(final InputStream in) throws IOException {
+        return in != null;
+      }
+    });
+  }
+
   @Override
   public String load(final ResourceURI uri) throws IOException {
+    return process(uri, new StreamHandler<String>() {
+      @Override
+      public String handle(final InputStream in) throws IOException {
+        if (in == null) {
+          throw new FileNotFoundException("classpath:" + uri);
+        }
+        return IOUtils.toString(in, "UTF-8");
+      }
+    });
+  }
+
+  private <V> V process(final ResourceURI uri, final StreamHandler<V> handler)
+      throws IOException {
     String path = uri.baseUrl + uri.path;
     InputStream input = null;
     try {
       input = getClass().getResourceAsStream(path);
-      if (input == null) {
-        throw new FileNotFoundException("classpath:" + path);
-      }
-      return IOUtils.toString(input, "UTF-8");
+      return handler.handle(input);
     } finally {
       IOUtils.closeQuietly(input);
     }
   }
-
 }

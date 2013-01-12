@@ -17,24 +17,25 @@
  */
 package com.github.jknack.amd4j;
 
-import java.util.LinkedHashSet;
-import java.util.Set;
+public class SemicolonAppenderPlugin implements OptimizerPlugin {
 
-class Module {
-
-  public final String name;
-
-  public final StringBuilder content;
-
-  public final Set<String> dependencies = new LinkedHashSet<String>();
-
-  public Module(final String name, final StringBuilder content) {
-    this.name = name;
-    this.content = content;
+  @Override
+  public boolean apply(final ResourceURI uri) {
+    return true;
   }
 
   @Override
-  public String toString() {
-    return name;
+  public Module transform(final Config config, final Module module) {
+    // make sure it has a ';'
+    StringBuilder content = module.content;
+    int idx = content.length() - 1;
+    while (idx >= 0 && Character.isWhitespace(content.charAt(idx))) {
+      idx--;
+    }
+    if (idx >= 0 && idx < content.length() && content.charAt(idx) != ';') {
+      content.append(';');
+    }
+    return module;
   }
+
 }

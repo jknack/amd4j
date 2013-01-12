@@ -78,7 +78,8 @@ public class Shim {
         buffer.append("\ndefine(\"").append(module.name).append("\", ").append(depsToString())
             .append(", (function (global) {\n");
         buffer.append("    return function () {\n");
-        buffer.append("        return global.").append(exports).append(";\n");
+        buffer.append("        var ret, fn;\n");
+        buffer.append("        return ret || global.").append(exports).append(";\n");
         buffer.append("    };\n");
         buffer.append("}(this)));\n");
       }

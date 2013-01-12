@@ -25,14 +25,45 @@ public class OptimizerTest {
     Assume.assumeTrue(RequireOptimizer.isNodeJsPresent());
 
     // node is in the system, validate the output using node.js
-    File fexpected = new File("target/z.expected.js");
+    File fexpected = new File(System.getProperty("user.dir"), "target/z.expected.js");
     fexpected.delete();
     RequireOptimizer.optimize("-o", "name=z", "out=" + fexpected.getPath(),
-        "baseUrl=src/test/resources");
+        "baseUrl=.");
 
     String output = FileUtils.readFileToString(foutput);
     String expected = FileUtils.readFileToString(fexpected);
     assertEquals(expected, output);
   }
 
+  @Test
+  public void complex() throws IOException {
+    File foutput = new File("target/complex.bundle.js");
+    foutput.delete();
+    new Optimizer()
+        .with(new TextPlugin())
+        .optimize(new Config(".", "pages/home/home", foutput.getPath())
+            .setFindNestedDependencies(true)
+            .newPath("sidebar", "widgets/sidebar/sidebar")
+            .newPath("topbar", "widgets/topbar/topbar")
+        );
+
+    assertTrue(foutput.exists());
+
+    Assume.assumeTrue(RequireOptimizer.isNodeJsPresent());
+
+    // node is in the system, validate the output using node.js
+    File fexpected = new File(System.getProperty("user.dir"), "target/complex.expected.js");
+    fexpected.delete();
+    RequireOptimizer.optimize("-o", "name=pages/home/home", "out=" + fexpected.getPath(),
+        "baseUrl=.",
+        "findNestedDependencies=true",
+        "paths.text=text",
+        "paths.sidebar=widgets/sidebar/sidebar",
+        "paths.topbar=widgets/topbar/topbar"
+        );
+
+    String output = FileUtils.readFileToString(foutput);
+    String expected = FileUtils.readFileToString(fexpected);
+    assertEquals(expected, output);
+  }
 }

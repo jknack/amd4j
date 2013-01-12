@@ -17,6 +17,7 @@
  */
 package com.github.jknack.amd4j;
 
+import java.io.File;
 
 public class ResourceURI {
 
@@ -27,10 +28,10 @@ public class ResourceURI {
   public final String path;
 
   public ResourceURI(final String baseUrl, final String schema, final String path) {
-    String tmp = baseUrl.endsWith("/") ? baseUrl : baseUrl + "/";
-    this.baseUrl = tmp.startsWith(".")? tmp.substring(1): tmp;
+    String tmp = baseUrl.endsWith(File.separator) ? baseUrl : baseUrl + File.separator;
+    this.baseUrl = tmp.startsWith(".") ? tmp.substring(1) : tmp;
     this.schema = schema;
-    this.path = path.startsWith("/") ? path.substring(1) : path;
+    this.path = path.startsWith(File.separator) ? path.substring(File.separator.length()) : path;
   }
 
   @Override

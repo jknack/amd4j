@@ -35,8 +35,17 @@ public class FileResourceLoader implements ResourceLoader {
   }
 
   @Override
+  public boolean exists(final ResourceURI uri) throws IOException {
+    return toFile(uri).exists();
+  }
+
+  @Override
   public String load(final ResourceURI uri) throws IOException {
-    return FileUtils.readFileToString(new File(new File(baseDir, uri.baseUrl), uri.path), "UTF-8");
+    return FileUtils.readFileToString(toFile(uri), "UTF-8");
+  }
+
+  private File toFile(final ResourceURI uri) {
+    return new File(new File(baseDir, uri.baseUrl), uri.path);
   }
 
 }

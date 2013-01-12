@@ -25,7 +25,7 @@ import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 
-public class DependencyContext {
+class DependencyContext {
 
   private final Set<String> dependencies = new LinkedHashSet<String>();
 

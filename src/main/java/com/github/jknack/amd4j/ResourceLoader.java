@@ -21,5 +21,7 @@ import java.io.IOException;
 
 public interface ResourceLoader {
 
+  boolean exists(ResourceURI uri) throws IOException;
+
   String load(ResourceURI uri) throws IOException;
 }

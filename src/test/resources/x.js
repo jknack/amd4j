@@ -4,6 +4,3 @@ define(['js/y'], function () {
     name: "x"
   };
 })
-
-
-

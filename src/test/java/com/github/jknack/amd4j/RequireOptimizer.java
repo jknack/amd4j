@@ -25,12 +25,12 @@ public class RequireOptimizer {
 
   public static void optimize(final String... args) throws IOException {
     List<String> arguments = new ArrayList<String>();
-    arguments.add("src/test/resources/r.js");
+    arguments.add("r.js");
     arguments.addAll(asList(args));
     arguments.add("optimize=none");
     long start = System.currentTimeMillis();
     if (!nodeIfPresent(arguments)) {
-      logger.info("\nrhino r.js {}", join(args, " "));
+      logger.info("\nrhino {}", join(args, " "));
       Main.main(arguments.toArray(new String[arguments.size()]));
     }
     long end = System.currentTimeMillis();
@@ -42,7 +42,7 @@ public class RequireOptimizer {
     if (node == null) {
       return false;
     }
-    logger.info("\nnode r.js {}", join(args, " "));
+    logger.info("\nnode {}", join(args, " "));
     CommandLine command = new CommandLine(node);
     command.addArguments(args.toArray(new String[args.size()]));
     DefaultExecutor executor = new DefaultExecutor();
@@ -52,7 +52,8 @@ public class RequireOptimizer {
         logger.info(line);
       }
     };
-    executor.setWorkingDirectory(new File(System.getProperty("user.dir")));
+    File worDir = new File(System.getProperty("user.dir"), "src/test/resources");
+    executor.setWorkingDirectory(worDir);
     executor.getStreamHandler().setProcessInputStream(log);
     int status = executor.execute(command);
     return status == 0;
