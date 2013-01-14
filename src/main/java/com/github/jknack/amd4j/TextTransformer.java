@@ -23,7 +23,13 @@ import org.apache.commons.lang3.text.translate.EntityArrays;
 import org.apache.commons.lang3.text.translate.LookupTranslator;
 import org.apache.commons.lang3.text.translate.UnicodeEscaper;
 
-public class TextPlugin implements OptimizerPlugin {
+/**
+ * Embedded text dependencies as an AMD module.
+ *
+ * @author edgar.espina
+ * @since 0.1.0
+ */
+public class TextTransformer implements Transformer {
 
   /**
    * Translator object for escaping EcmaScript/JavaScript.

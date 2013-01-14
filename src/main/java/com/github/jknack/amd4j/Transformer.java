@@ -17,8 +17,31 @@
  */
 package com.github.jknack.amd4j;
 
-public interface OptimizerPlugin {
+/**
+ * A transformer can modify the content of a {@link Module}.
+ * Also, a transformer can report dependencies for modules.
+ * A depedency will be resolve later by the {@link Optimizer}.
+ *
+ * @author edgar.espina
+ * @since 0.1.0
+ */
+public interface Transformer {
+
+  /**
+   * True, if the transformer apply for the given uri.
+   *
+   * @param uri The resource uri. Not null.
+   * @return True, if the transformer apply for the given uri.
+   */
   boolean apply(ResourceURI uri);
 
+  /**
+   * Transform the given module into a new {@link Module} or modify the existing {@link Module}.
+   *
+   * @param config The configuration options.
+   * @param module The candidate module.
+   * @return Transform the given module into a new {@link Module} or modify the existing
+   *         {@link Module}.
+   */
   Module transform(Config config, Module module);
 }

@@ -20,13 +20,13 @@ public class ShimConfigTest {
     // backbone
     Shim backbone = config.getShim("backbone");
     assertNotNull(backbone);
-    assertEquals(new HashSet<String>(asList("underscore", "jquery")), backbone.deps());
+    assertEquals(new HashSet<String>(asList("underscore", "jquery")), backbone.dependencies());
     assertEquals("Backbone", backbone.exports());
 
     // foo
     Shim foo = config.getShim("foo");
     assertNotNull(foo);
-    assertEquals(new HashSet<String>(asList("bar")), foo.deps());
+    assertEquals(new HashSet<String>(asList("bar")), foo.dependencies());
     assertEquals("Foo", foo.exports());
     assertEquals("function(bar) {\n  return this.Foo.noConflict();\n}", foo.init());
   }
@@ -39,21 +39,21 @@ public class ShimConfigTest {
     // jquery.colorize
     Shim jqueryColorize = config.getShim("jquery.colorize");
     assertNotNull(jqueryColorize);
-    assertEquals(new HashSet<String>(asList("jquery")), jqueryColorize.deps());
+    assertEquals(new HashSet<String>(asList("jquery")), jqueryColorize.dependencies());
     assertNull(jqueryColorize.exports());
     assertNull(jqueryColorize.init());
 
     // jquery.scroll
     Shim jqueryScroll = config.getShim("jquery.scroll");
     assertNotNull(jqueryScroll);
-    assertEquals(new HashSet<String>(asList("jquery")), jqueryScroll.deps());
+    assertEquals(new HashSet<String>(asList("jquery")), jqueryScroll.dependencies());
     assertNull(jqueryScroll.exports());
     assertNull(jqueryScroll.init());
 
     // backbone.layoutmanager
     Shim backboneLayoutmanager = config.getShim("backbone.layoutmanager");
     assertNotNull(backboneLayoutmanager);
-    assertEquals(new HashSet<String>(asList("backbone")), backboneLayoutmanager.deps());
+    assertEquals(new HashSet<String>(asList("backbone")), backboneLayoutmanager.dependencies());
     assertNull(backboneLayoutmanager.exports());
     assertNull(backboneLayoutmanager.init());
   }

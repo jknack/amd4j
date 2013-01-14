@@ -17,19 +17,42 @@
  */
 package com.github.jknack.amd4j;
 
+import static org.apache.commons.lang3.Validate.isTrue;
+import static org.apache.commons.lang3.Validate.notNull;
+
 import java.io.File;
 import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
 
+/**
+ * Resolve resouces from file system.
+ *
+ * @author edgar.espina
+ * @since 0.1.0
+ */
 public class FileResourceLoader implements ResourceLoader {
 
+  /**
+   * The base directory.
+   */
   private File baseDir;
 
+  /**
+   * Creates a new {@link FileResourceLoader}.
+   *
+   * @param baseDir The base directory. Required.
+   */
   public FileResourceLoader(final File baseDir) {
+    notNull(baseDir, "The baseDir is required.");
+    isTrue(baseDir.exists() && baseDir.isDirectory(), "Directory not found: %s", baseDir);
+
     this.baseDir = baseDir;
   }
 
+  /**
+   * Creates a new {@link FileResourceLoader} using the <code>user.dir</code> property.
+   */
   public FileResourceLoader() {
     this(new File(System.getProperty("user.dir")));
   }
@@ -44,6 +67,12 @@ public class FileResourceLoader implements ResourceLoader {
     return FileUtils.readFileToString(toFile(uri), "UTF-8");
   }
 
+  /**
+   * Resolve the uri to a file.
+   *
+   * @param uri The candidate uri.
+   * @return A file that represent the uri.
+   */
   private File toFile(final ResourceURI uri) {
     return new File(new File(baseDir, uri.baseUrl), uri.path);
   }

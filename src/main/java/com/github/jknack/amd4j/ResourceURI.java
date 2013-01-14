@@ -17,21 +17,67 @@
  */
 package com.github.jknack.amd4j;
 
+import static org.apache.commons.lang3.Validate.notEmpty;
+
 import java.io.File;
 
-public class ResourceURI {
+/**
+ * A resource identifier.
+ *
+ * @author edgar.espina
+ * @since 0.1.0
+ */
+public final class ResourceURI {
 
+  /**
+   * The uri schema or null if there is no schema.
+   */
   public final String schema;
 
+  /**
+   * The base's url.
+   */
   public final String baseUrl;
 
+  /**
+   * The resource's path under the base url.
+   */
   public final String path;
 
-  public ResourceURI(final String baseUrl, final String schema, final String path) {
+  /**
+   * Creates a new {@link ResourceURI}.
+   *
+   * @param baseUrl The base url.
+   * @param schema The schema. Optional.
+   * @param path The uri path.
+   */
+  private ResourceURI(final String baseUrl, final String schema, final String path) {
     String tmp = baseUrl.endsWith(File.separator) ? baseUrl : baseUrl + File.separator;
     this.baseUrl = tmp.startsWith(".") ? tmp.substring(1) : tmp;
     this.schema = schema;
     this.path = path.startsWith(File.separator) ? path.substring(File.separator.length()) : path;
+  }
+
+  /**
+   * Creates a {@link ResourceURI}.
+   *
+   * @param baseUrl The base url.
+   * @param path The dependency's path. It might be preffixed with: <code>schema!</code> where
+   *        <code>schema</code> is usually a plugin.
+   * @return A new {@link ResourceURI}.
+   */
+  public static ResourceURI parse(final String baseUrl, final String path) {
+    notEmpty(baseUrl, "The baseUrl is required.");
+    notEmpty(path, "The path is required.");
+
+    String schema = null;
+    String realPath = path;
+    int idx = realPath.indexOf("!");
+    if (idx > 0) {
+      schema = realPath.substring(0, idx + 1);
+      realPath = realPath.substring(idx + 1);
+    }
+    return new ResourceURI(baseUrl, schema, realPath);
   }
 
   @Override
@@ -44,6 +90,11 @@ public class ResourceURI {
     return buffer.toString();
   }
 
+  /**
+   * Get the full path of this uri.
+   *
+   * @return The full path of this uri.
+   */
   public String getFullPath() {
     return baseUrl + path;
   }

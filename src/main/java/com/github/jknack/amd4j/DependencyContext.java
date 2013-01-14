@@ -25,26 +25,58 @@ import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 
+/**
+ * Utility class for tracking module dependencies and building the output.
+ *
+ * @author edgar.espina
+ * @since 0.1.0
+ */
 class DependencyContext {
 
+  /**
+   * Contains the already process dependencies.
+   */
   private final Set<String> dependencies = new LinkedHashSet<String>();
 
+  /**
+   * The optimizer output.
+   */
   private PrintWriter writer;
 
+  /**
+   * Creates a new {@link DependencyContext}.
+   *
+   * @param output The optimizer output.
+   * @throws IOException If the output file cannot be created.
+   */
   public DependencyContext(final File output) throws IOException {
     writer = new PrintWriter(output, "UTF-8");
   }
 
+  /**
+   * Returns true, if the file has been processed.
+   *
+   * @param uri The file uri.
+   * @return True, if the file has been processed.
+   */
   public boolean hasBeenProcessed(final ResourceURI uri) {
     return !dependencies.add(uri.getFullPath());
   }
 
+  /**
+   * Write the module to the final output.
+   *
+   * @param module The module to write.
+   */
   public void write(final Module module) {
     if (module.content.length() > 0) {
       writer.append("\n").append(module.content);
     }
   }
 
+  /**
+   * Close the context.
+   */
   public void close() {
     IOUtils.closeQuietly(writer);
   }

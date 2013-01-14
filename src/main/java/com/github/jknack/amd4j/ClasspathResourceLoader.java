@@ -23,9 +23,30 @@ import java.io.InputStream;
 
 import org.apache.commons.io.IOUtils;
 
+/**
+ * Resolve resource from classpath.
+ *
+ * @author edgar.espina
+ * @since 0.1.0
+ */
 public class ClasspathResourceLoader implements ResourceLoader {
 
+  /**
+   * Handle {@link InputStream}.
+   *
+   * @author edgar.espina
+   *
+   * @param <V> The resulting value.
+   */
   private interface StreamHandler<V> {
+
+    /**
+     * Handle an {@link InputStream}.
+     *
+     * @param in The {@link InputStream}.
+     * @return A value.
+     * @throws IOException If the stream cannot be handled.
+     */
     V handle(InputStream in) throws IOException;
   }
 
@@ -52,6 +73,15 @@ public class ClasspathResourceLoader implements ResourceLoader {
     });
   }
 
+  /**
+   * Resolve the uri to an {@link InputStream} and ask the handler to handle it.
+   *
+   * @param uri The resource uri.
+   * @param handler The stream handler.
+   * @param <V> The resulting value.
+   * @return The resulting value.
+   * @throws IOException If the file isn't found.
+   */
   private <V> V process(final ResourceURI uri, final StreamHandler<V> handler)
       throws IOException {
     String path = uri.baseUrl + uri.path;

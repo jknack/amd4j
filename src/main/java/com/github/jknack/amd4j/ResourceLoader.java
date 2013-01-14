@@ -19,9 +19,29 @@ package com.github.jknack.amd4j;
 
 import java.io.IOException;
 
+/**
+ * Resolve a uri to a resource content.
+ *
+ * @author edgar.espina
+ * @since 0.1.0
+ */
 public interface ResourceLoader {
 
+  /**
+   * True, if the {@link ResourceURI} exists.
+   *
+   * @param uri The resource uri.
+   * @return True, if the {@link ResourceURI} exists.
+   * @throws IOException If something goes wrong.
+   */
   boolean exists(ResourceURI uri) throws IOException;
 
+  /**
+   * Try to load a resource content under the given uri.
+   *
+   * @param uri The resource uri.
+   * @return The resource content.
+   * @throws IOException If the file isn't found or can't be read.
+   */
   String load(ResourceURI uri) throws IOException;
 }

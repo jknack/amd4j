@@ -18,6 +18,7 @@
 package com.github.jknack.amd4j;
 
 import static org.apache.commons.lang3.StringUtils.join;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,25 +26,55 @@ import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+/**
+ * Shim configuration options for 'browser globals scripts'.
+ *
+ * @author edgar.espina
+ * @since 0.1.0
+ */
 public class Shim {
 
+  /**
+   * Module's dependencies.
+   */
   @JsonProperty
   private Set<String> deps;
 
+  /**
+   * The name of the global variable to exports.
+   */
   @JsonProperty
   private String exports;
 
+  /**
+   * Alternative, use an init function for export a global variable.
+   */
   @JsonProperty
   private String init;
 
-  public Set<String> deps() {
+  /**
+   * Module's dependencies.
+   *
+   * @return Module's dependencies.
+   */
+  public Set<String> dependencies() {
     return deps;
   }
 
+  /**
+   * The name of the global variable to export.
+   *
+   * @return The name of the global variable to export.
+   */
   public String exports() {
     return exports;
   }
 
+  /**
+   * Alternative, use an init function for export a global variable.
+   *
+   * @return An init function for export a global variable.
+   */
   public String init() {
     return init;
   }
@@ -53,7 +84,7 @@ public class Shim {
     StringBuilder buffer = new StringBuilder();
     buffer.append("{\n");
     List<String> properties = new ArrayList<String>();
-    properties.add("  \"deps\": " + depsToString());
+    properties.add("  \"deps\": " + depsToString("[]"));
     if (exports != null) {
       properties.add("  \"exports\": \"" + exports + "\"");
     }
@@ -65,17 +96,30 @@ public class Shim {
     return buffer.toString();
   }
 
-  private String depsToString() {
-    return deps == null ? "[]" : "[\"" + join(deps, "\", \"") + "\"]";
+  /**
+   * Get an string representation of the dependency set.
+   *
+   * @param empty The empty value to use if no dependencies.
+   * @return An string representation of the dependency set.
+   */
+  private String depsToString(final String empty) {
+    return deps == null ? empty : "[\"" + join(deps, "\", \"") + "\"]";
   }
 
+  /**
+   * Make the module AMD compatible.
+   *
+   * @param module The candidate module. Required.
+   * @return An AMD function.
+   */
   public String shim(final Module module) {
+    notNull(module, "The module is required.");
     StringBuilder buffer = new StringBuilder();
     if (init == null) {
       if (exports == null) {
         buffer.append("\ndefine(\"").append(module.name).append("\", function(){});\n");
       } else {
-        buffer.append("\ndefine(\"").append(module.name).append("\", ").append(depsToString())
+        buffer.append("\ndefine(\"").append(module.name).append("\", ").append(depsToString(""))
             .append(", (function (global) {\n");
         buffer.append("    return function () {\n");
         buffer.append("        var ret, fn;\n");
@@ -84,7 +128,7 @@ public class Shim {
         buffer.append("}(this)));\n");
       }
     } else {
-      buffer.append("\ndefine(\"").append(module.name).append("\", ").append(depsToString())
+      buffer.append("\ndefine(\"").append(module.name).append("\", ").append(depsToString(""))
           .append(", (function (global) {\n");
       buffer.append("    return function () {\n");
       buffer.append("        var ret, fn;\n");

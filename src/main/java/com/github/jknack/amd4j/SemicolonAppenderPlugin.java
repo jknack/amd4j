@@ -17,7 +17,13 @@
  */
 package com.github.jknack.amd4j;
 
-public class SemicolonAppenderPlugin implements OptimizerPlugin {
+/**
+ * Append a ';' to a module.
+ *
+ * @author edgar.espina
+ * @since 0.1.0
+ */
+public class SemicolonAppenderPlugin implements Transformer {
 
   @Override
   public boolean apply(final ResourceURI uri) {

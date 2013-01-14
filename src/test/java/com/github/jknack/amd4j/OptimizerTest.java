@@ -17,8 +17,8 @@ public class OptimizerTest {
     File foutput = new File("target/z.bundle.js");
     foutput.delete();
     new Optimizer()
-        .with(new TextPlugin())
-        .optimize(new Config(".", "z", foutput.getPath()));
+        .with(new TextTransformer())
+        .optimize(new Config(".", "z", foutput));
 
     assertTrue(foutput.exists());
 
@@ -40,11 +40,11 @@ public class OptimizerTest {
     File foutput = new File("target/complex.bundle.js");
     foutput.delete();
     new Optimizer()
-        .with(new TextPlugin())
-        .optimize(new Config(".", "pages/home/home", foutput.getPath())
+        .with(new TextTransformer())
+        .optimize(new Config(".", "pages/home/home", foutput)
             .setFindNestedDependencies(true)
-            .newPath("sidebar", "widgets/sidebar/sidebar")
-            .newPath("topbar", "widgets/topbar/topbar")
+            .path("sidebar", "widgets/sidebar/sidebar")
+            .path("topbar", "widgets/topbar/topbar")
         );
 
     assertTrue(foutput.exists());

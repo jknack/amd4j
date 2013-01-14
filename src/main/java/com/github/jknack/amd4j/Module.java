@@ -17,20 +17,43 @@
  */
 package com.github.jknack.amd4j;
 
+import static org.apache.commons.lang3.Validate.notEmpty;
+
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-class Module {
+/**
+ * Hold information about an AMD.
+ *
+ * @author edgar.espina
+ * @since 0.1.0
+ */
+public class Module {
 
+  /**
+   * The module's name.
+   */
   public final String name;
 
+  /**
+   * The mutable module's content.
+   */
   public final StringBuilder content;
 
+  /**
+   * The mutable module's dependencies. This can be alias or absolute paths to a file.
+   */
   public final Set<String> dependencies = new LinkedHashSet<String>();
 
+  /**
+   * Creates a new {@link Module}.
+   *
+   * @param name The module's name. Required.
+   * @param content The module's content. Required.
+   */
   public Module(final String name, final StringBuilder content) {
-    this.name = name;
-    this.content = content;
+    this.name = notEmpty(name, "The name is required.");
+    this.content = notEmpty(content, "The content is required.");
   }
 
   @Override

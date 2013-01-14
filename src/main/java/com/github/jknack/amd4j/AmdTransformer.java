@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.mozilla.javascript.Parser;
+import org.mozilla.javascript.Token;
 import org.mozilla.javascript.ast.ArrayLiteral;
 import org.mozilla.javascript.ast.AstNode;
 import org.mozilla.javascript.ast.AstRoot;
@@ -30,31 +31,71 @@ import org.mozilla.javascript.ast.Name;
 import org.mozilla.javascript.ast.NodeVisitor;
 import org.mozilla.javascript.ast.StringLiteral;
 
-import sun.org.mozilla.javascript.Token;
+/**
+ * Augment a module by inserting the module names into <code>anonymous define</code> functions.
+ * The insertation is done by parsing the JavaScript code using the Rhino {@link Parser}.
+ * Finally, if a <code>define</code> statement isn't found and there is a
+ * {@link Config#getShim(String)} shim option for the module, the module will be converted to AMD.
+ *
+ * @author edgar.espina
+ * @since 0.1.0
+ */
+public class AmdTransformer implements Transformer {
 
-public class AmdPlugin implements OptimizerPlugin {
-
+  /**
+   * The JavaScript visitor responsible of inserting modules names and/or convert modules to AMD.
+   *
+   * @author edgar.espina
+   *
+   */
   public static class AmdVisitor implements NodeVisitor {
 
+    /**
+     * The candidate module.
+     */
     private Module module;
 
+    /**
+     * Keep track of inserted chunks.
+     */
     private int offset = 1;
 
+    /**
+     * The start offset per each line.
+     */
     private List<Integer> lines = new ArrayList<Integer>();
 
+    /**
+     * The configuration options.
+     */
     private Config config;
 
+    /**
+     * True, if there isn't a define function.
+     */
     private boolean defineFound;
 
+    /**
+     * Creates a new {@link AmdVisitor}.
+     *
+     * @param config The configuration options.
+     * @param module The candidate module.
+     */
     public AmdVisitor(final Config config, final Module module) {
       this.config = config;
       this.module = module;
       lines.add(0);
     }
 
+    /**
+     * Get the start text offset for the given line.
+     *
+     * @param line The line number.
+     * @return The start text offset for the requested line.
+     */
     public int lineAt(final int line) {
       int idx = lines.get(lines.size() - 1);
-      while(lines.size() <= line && idx < module.content.length()) {
+      while (lines.size() <= line && idx < module.content.length()) {
         int ch = module.content.charAt(idx);
         if (ch == '\n') {
           lines.add(idx + 1);
@@ -64,6 +105,9 @@ public class AmdPlugin implements OptimizerPlugin {
       return lines.get(line);
     }
 
+    /**
+     * Shim, the module if necessary or possible.
+     */
     public void shim() {
       if (!defineFound) {
         Shim shim = config.getShim(module.name);
@@ -82,10 +126,17 @@ public class AmdPlugin implements OptimizerPlugin {
           return visit((FunctionCall) node);
         case Token.STRING:
           return visit((StringLiteral) node);
+        default:
+          return true;
       }
-      return true;
     }
 
+    /**
+     * Remove "use strict" statement if the configuration doesn't allow it.
+     *
+     * @param node The string literal node.
+     * @return True, to keep walking.
+     */
     public boolean visit(final StringLiteral node) {
       String useStrict = "use strict";
       if (useStrict.equals(node.getValue()) && !config.isUseStrict()
@@ -99,6 +150,12 @@ public class AmdPlugin implements OptimizerPlugin {
       return true;
     }
 
+    /**
+     * Find out "define" and "require" function calls.
+     *
+     * @param node The function call node.
+     * @return True, to keep walking.
+     */
     public boolean visit(final FunctionCall node) {
       AstNode target = node.getTarget();
       if (target instanceof Name) {
@@ -116,6 +173,15 @@ public class AmdPlugin implements OptimizerPlugin {
       return true;
     }
 
+    /**
+     * <ul>
+     * <li>Insert module's name if necessary.</li>
+     * <li>Insert module's dependencies if necessary.</li>
+     * <li>Report dependencies if any.</li>
+     * </ul>
+     *
+     * @param node The function call.
+     */
     private void visitDefine(final FunctionCall node) {
       List<AstNode> arguments = node.getArguments();
       final boolean hasName;
@@ -153,6 +219,12 @@ public class AmdPlugin implements OptimizerPlugin {
       visitDependencies(node, idx);
     }
 
+    /**
+     * Report module's dependencies.
+     *
+     * @param node The function's call.
+     * @param idx The start argument index.
+     */
     private void visitDependencies(final FunctionCall node, final int idx) {
       List<AstNode> arguments = node.getArguments();
       if (arguments.size() > idx) {
