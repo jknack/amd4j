@@ -51,9 +51,9 @@ public class Module {
    * @param name The module's name. Required.
    * @param content The module's content. Required.
    */
-  public Module(final String name, final StringBuilder content) {
+  public Module(final String name, final CharSequence content) {
     this.name = notEmpty(name, "The name is required.");
-    this.content = notEmpty(content, "The content is required.");
+    this.content = new StringBuilder(notEmpty(content, "The content is required."));
   }
 
   @Override

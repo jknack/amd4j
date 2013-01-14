@@ -158,7 +158,7 @@ public class Optimizer {
       return;
     }
     String content = loader.load(uri);
-    Module module = new Module(moduleName, new StringBuilder(content));
+    Module module = new Module(moduleName, content);
 
     List<Transformer> plugins = new ArrayList<Transformer>(transformers);
     plugins.add(new SemicolonAppenderPlugin());

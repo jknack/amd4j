@@ -18,6 +18,7 @@
 package com.github.jknack.amd4j;
 
 import static org.apache.commons.lang3.StringUtils.join;
+import static org.apache.commons.lang3.Validate.notEmpty;
 import static org.apache.commons.lang3.Validate.notNull;
 
 import java.util.ArrayList;
@@ -51,6 +52,45 @@ public class Shim {
    */
   @JsonProperty
   private String init;
+
+  /**
+   * Default constructor.
+   */
+  public Shim() {
+  }
+
+  /**
+   * Creates a new {@link Shim} object.
+   *
+   * @param exports The exports option.
+   * @param dependencies The dependency list.
+   * @param init The init function.
+   */
+  public Shim(final String exports, final Set<String> dependencies, final String init) {
+    this.exports = notEmpty(exports, "The exports is required.");
+    deps = notNull(dependencies, "The dependencies is required.");
+    this.init = notEmpty(init, "The init is required.");
+  }
+
+  /**
+   * Creates a new {@link Shim} object.
+   *
+   * @param exports The exports option.
+   * @param dependencies The dependency list.
+   */
+  public Shim(final String exports, final Set<String> dependencies) {
+    this.exports = notEmpty(exports, "The exports is required.");
+    deps = notNull(dependencies, "The dependencies is required.");
+  }
+
+  /**
+   * Creates a new {@link Shim} object.
+   *
+   * @param exports The exports option.
+   */
+  public Shim(final String exports) {
+    this.exports = notEmpty(exports, "The exports is required.");
+  }
 
   /**
    * Module's dependencies.
@@ -103,7 +143,7 @@ public class Shim {
    * @return An string representation of the dependency set.
    */
   private String depsToString(final String empty) {
-    return deps == null ? empty : "[\"" + join(deps, "\", \"") + "\"]";
+    return deps == null || deps.isEmpty() ? empty : "[\"" + join(deps, "\", \"") + "\"]";
   }
 
   /**
@@ -119,7 +159,7 @@ public class Shim {
       if (exports == null) {
         buffer.append("\ndefine(\"").append(module.name).append("\", function(){});\n");
       } else {
-        buffer.append("\ndefine(\"").append(module.name).append("\", ").append(depsToString(""))
+        buffer.append("\ndefine(\"").append(module.name).append("\", ").append(depsToString("[]"))
             .append(", (function (global) {\n");
         buffer.append("    return function () {\n");
         buffer.append("        var ret, fn;\n");
@@ -128,7 +168,7 @@ public class Shim {
         buffer.append("}(this)));\n");
       }
     } else {
-      buffer.append("\ndefine(\"").append(module.name).append("\", ").append(depsToString(""))
+      buffer.append("\ndefine(\"").append(module.name).append("\", ").append(depsToString("[]"))
           .append(", (function (global) {\n");
       buffer.append("    return function () {\n");
       buffer.append("        var ret, fn;\n");
