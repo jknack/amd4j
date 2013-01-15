@@ -22,14 +22,14 @@ I love AMD!! So, I created this tool (inspired by [r.js](http://requirejs.org/do
 Usage
 ======
 
-## Optimizing an AMD script:
+**Optimizing an AMD script**:
 
 ```java
   new Optimizer()
     .optimize(new Config("module.js", new File(out.js)));
 ```
 
-## Analyzing an AMD script:
+**Analyzing an AMD script**:
 
 ```java
   Module result = new Optimizer().analyze(new Config("module.js")));
