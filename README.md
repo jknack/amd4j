@@ -53,6 +53,19 @@ what is supported so far?
 * ```text!``` plugin support
 * ```shim``` support
 
+dependencies
+======
+
+```
++- org.apache.commons:commons-lang3:jar:3.1:compile
++- org.slf4j:slf4j-api:jar:1.6.4:compile
++- commons-io:commons-io:jar:2.4:compile
++- org.mozilla:rhino:jar:1.7R3:compile
++- com.fasterxml.jackson.core:jackson-databind:jar:2.1.0:compile
+|  +- com.fasterxml.jackson.core:jackson-annotations:jar:2.1.0:compile
+|  \- com.fasterxml.jackson.core:jackson-core:jar:2.1.0:compile
+```
+
 help and support
 ======
  [Bugs, Issues and Features](https://github.com/jknack/amd4j/issues)
