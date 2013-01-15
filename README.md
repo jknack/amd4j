@@ -9,9 +9,11 @@ why?
 ======
 Beside all the good work and efforts that [@jrburke](https://github.com/jrburke) did in [r.js](http://requirejs.org/docs/optimization.html) for Java.
 
-I found r.js extremely slow because the use of Rhino. So, **amd4j need to be extremely fast.**
+I found r.js extremely slow because the use of Rhino.
 
 Please note that r.js for Node is exactly the opposite: *extremely fast*
+
+So, **amd4j need to be extremely fast.**
 
 why not?
 ======
@@ -20,9 +22,26 @@ I love AMD!! So, I created this tool (inspired by [r.js](http://requirejs.org/do
 Usage
 ======
 
+## Optimizing an AMD script:
+
 ```java
   new Optimizer()
-    .optimize(new Config(".", "module.js", "out.js"));
+    .optimize(new Config("module.js", new File(out.js)));
+```
+
+## Analyzing an AMD script:
+
+```java
+  Module result = new Optimizer().analyze(new Config("module.js")));
+ 
+  // print graph
+  System.out.println(result.toStringTree());
+ 
+  // get dependencies
+  Iterable<Module> dependencies = result.getDependencies(false);
+ 
+  // get transitive dependencies
+  Iterable<Module> dependencies = result.getDependencies(true);
 ```
 
 what is supported so far?
