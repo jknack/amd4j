@@ -25,14 +25,14 @@ Usage
 **Optimizing an AMD script**:
 
 ```java
-  new Optimizer()
+  new Amd4j()
     .optimize(new Config("module.js", new File(out.js)));
 ```
 
 **Analyzing an AMD script**:
 
 ```java
-  Module result = new Optimizer().analyze(new Config("module.js")));
+  Module result = new Amd4j().analyze(new Config("module.js")));
  
   // print graph
   System.out.println(result.toStringTree());
