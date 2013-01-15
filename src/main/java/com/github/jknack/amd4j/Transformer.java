@@ -37,5 +37,13 @@ public interface Transformer {
    */
   boolean apply(URI uri);
 
+  /**
+   * Transform module content and return a new or modified {@link StringBuilder}.
+   *
+   * @param config The configuration options.
+   * @param name The module's name.
+   * @param content The module's content.
+   * @return A new or modified module's content.
+   */
   StringBuilder transform(Config config, String name, StringBuilder content);
 }

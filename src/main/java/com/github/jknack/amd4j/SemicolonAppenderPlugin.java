@@ -33,7 +33,8 @@ public class SemicolonAppenderPlugin implements Transformer {
   }
 
   @Override
-  public StringBuilder transform(final Config config, final String name, final StringBuilder content) {
+  public StringBuilder transform(final Config config, final String name,
+      final StringBuilder content) {
     // make sure it has a ';'
     int idx = content.length() - 1;
     while (idx >= 0 && Character.isWhitespace(content.charAt(idx))) {

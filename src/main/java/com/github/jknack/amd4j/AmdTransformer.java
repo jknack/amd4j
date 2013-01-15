@@ -71,8 +71,14 @@ public class AmdTransformer implements Transformer {
      */
     private boolean defineFound;
 
+    /**
+     * The module's name.
+     */
     private String moduleName;
 
+    /**
+     * The module's content.
+     */
     private StringBuilder content;
 
     /**
@@ -80,6 +86,7 @@ public class AmdTransformer implements Transformer {
      *
      * @param config The configuration options.
      * @param moduleName The module's name.
+     * @param content The module's content.
      */
     public AmdVisitor(final Config config, final String moduleName, final StringBuilder content) {
       this.config = config;
@@ -206,7 +213,8 @@ public class AmdTransformer implements Transformer {
   }
 
   @Override
-  public StringBuilder transform(final Config config, final String name, final StringBuilder content) {
+  public StringBuilder transform(final Config config, final String name,
+      final StringBuilder content) {
     if (content.length() == 0) {
       return content;
     }
@@ -214,15 +222,47 @@ public class AmdTransformer implements Transformer {
     AmdVisitor visitor = new AmdVisitor(config, name, content);
     AstRoot node = parser.parse(content.toString(), name, 1);
     node.visit(visitor);
-    // shim
+    // shim??
     if (!visitor.defineFound) {
       Shim shim = config.getShim(name);
       if (shim != null) {
-        String defineFn = shim.shim(name);
+        String defineFn = shim(shim, name);
         content.append(defineFn);
       }
     }
     return content;
   }
 
+  /**
+   * Make the module AMD compatible.
+   *
+   * @param shim A shim option.
+   * @param moduleName The candidate module.
+   * @return An AMD function.
+   */
+  private static String shim(final Shim shim, final String moduleName) {
+    StringBuilder buffer = new StringBuilder();
+    if (shim.init() == null) {
+      if (shim.exports() == null) {
+        buffer.append("\ndefine(\"").append(moduleName).append("\", function(){});\n");
+      } else {
+        buffer.append("\ndefine(\"").append(moduleName).append("\", (function (global) {\n");
+        buffer.append("    return function () {\n");
+        buffer.append("        var ret, fn;\n");
+        buffer.append("        return ret || global.").append(shim.exports()).append(";\n");
+        buffer.append("    };\n");
+        buffer.append("}(this)));\n");
+      }
+    } else {
+      buffer.append("\ndefine(\"").append(moduleName).append("\", (function (global) {\n");
+      buffer.append("    return function () {\n");
+      buffer.append("        var ret, fn;\n");
+      buffer.append("fn = ").append(shim.init()).append(";\n");
+      buffer.append("        ret = fn.apply(global, arguments);\n");
+      buffer.append("        return ret || global.").append(shim.exports()).append(";\n");
+      buffer.append("    };\n");
+      buffer.append("}(this)));\n");
+    }
+    return buffer.toString();
+  }
 }

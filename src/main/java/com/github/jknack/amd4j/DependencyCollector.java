@@ -34,91 +34,27 @@ import org.mozilla.javascript.ast.Name;
 import org.mozilla.javascript.ast.NodeVisitor;
 import org.mozilla.javascript.ast.StringLiteral;
 
-public final class DependencyCollector {
+/**
+ * Collect module's dependencies.
+ *
+ * @author edgar.espina
+ * @since 0.1.0
+ */
+final class DependencyCollector {
 
   /**
-   * The JavaScript visitor responsible of inserting modules names and/or convert modules to AMD.
-   *
-   * @author edgar.espina
-   *
+   * Not allowed.
    */
-  public static class DependencyAnalizer implements NodeVisitor {
-
-    /**
-     * The configuration options.
-     */
-    private Config config;
-
-    private Set<String> dependencies = new LinkedHashSet<String>();
-
-    /**
-     * Creates a new {@link DependencyAnalizer}.
-     *
-     * @param config The configuration options.
-     * @param module The candidate module.
-     */
-    public DependencyAnalizer(final Config config) {
-      this.config = config;
-    }
-
-    @Override
-    public boolean visit(final AstNode node) {
-      int type = node.getType();
-      switch (type) {
-        case Token.CALL:
-          return visit((FunctionCall) node);
-        default:
-          return true;
-      }
-    }
-
-    /**
-     * Find out "define" and "require" function calls.
-     *
-     * @param node The function call node.
-     * @return True, to keep walking.
-     */
-    public boolean visit(final FunctionCall node) {
-      AstNode target = node.getTarget();
-      if (target instanceof Name) {
-        String name = ((Name) target).getIdentifier();
-        if ("define".equals(name)) {
-          visitDependencies(node);
-        } else if ("require".equals(name)) {
-          int depth = node.getParent().depth() - 1;
-          if (config.isFindNestedDependencies() || depth == 0) {
-            visitDependencies(node);
-          }
-        }
-      }
-      return true;
-    }
-
-    /**
-     * Report module's dependencies.
-     *
-     * @param node The function's call.
-     */
-    private void visitDependencies(final FunctionCall node) {
-      List<AstNode> arguments = node.getArguments();
-      for (AstNode arg : arguments) {
-        if (arg instanceof ArrayLiteral) {
-          // found!
-          ArrayLiteral array = (ArrayLiteral) arg;
-          List<AstNode> dependencyList = array.getElements();
-          for (AstNode dependencyNode : dependencyList) {
-            StringLiteral stringLiteral = (StringLiteral) dependencyNode;
-            dependencies.add(stringLiteral.getValue());
-          }
-          break;
-        }
-      }
-    }
-  }
-
   private DependencyCollector() {
   }
 
+  /**
+   * Collect all the dependencies for the given module.
+   *
+   * @param config A configuration options.
+   * @param module An AMD module.
+   * @return A dependency set.
+   */
   public static Set<String> collect(final Config config, final Module module) {
     if (module.content.length() == 0) {
       return Collections.emptySet();
@@ -127,12 +63,17 @@ public final class DependencyCollector {
     return new NodeVisitor() {
       private Set<String> dependencies = new LinkedHashSet<String>();
 
+      /**
+       * Collect all the dependencies.
+       *
+       * @return A dependency set.
+       */
       public Set<String> collect() {
         Parser parser = new Parser();
         AstRoot node = parser.parse(module.content.toString(), module.name, 1);
         if (!isEmpty(module.uri.getScheme())) {
           // report a plugin as a dependency
-          dependencies.add(module.uri.getScheme().replace("!", ""));
+          dependencies.add(module.uri.getScheme());
         }
         node.visit(this);
         // check shim configuration
@@ -199,7 +140,7 @@ public final class DependencyCollector {
           }
         }
       }
-    }.collect();
+    } .collect();
   }
 
 }

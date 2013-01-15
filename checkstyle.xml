@@ -182,7 +182,7 @@
         <module name="VisibilityModifier">
           <property name="packageAllowed" value="true"/>
           <property name="protectedAllowed" value="true"/>
-          <property name="publicMemberPattern" value="schema|path|baseUrl|name|dependencies|content"/>
+          <property name="publicMemberPattern" value="uri|name|content"/>
         </module>
 
 

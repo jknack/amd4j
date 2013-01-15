@@ -46,14 +46,21 @@ public class Module implements Iterable<Module> {
    */
   public final String content;
 
+  /**
+   * The dependency set.
+   */
   private final Set<Module> dependencies = new LinkedHashSet<Module>();
 
+  /**
+   * The module's uri.
+   */
   public final URI uri;
 
   /**
    * Creates a new {@link Module}.
    *
    * @param name The module's name. Required.
+   * @param uri The module's uri. Required.
    * @param content The module's content. Required.
    */
   public Module(final String name, final URI uri, final String content) {
@@ -62,7 +69,13 @@ public class Module implements Iterable<Module> {
     this.content = notEmpty(content, "The content is required.");
   }
 
-  public <Out> void traverse(final ModuleVisitor<Out> visitor) {
+  /**
+   * Walk through all the module's dependencies.
+   *
+   * @param visitor A module's visitor. Required.
+   */
+  public void traverse(final ModuleVisitor<?> visitor) {
+    notNull(visitor, "The visitor is required.");
     if (visitor.visit(this)) {
       for (Module dependency : dependencies) {
         dependency.traverse(visitor);
@@ -85,11 +98,23 @@ public class Module implements Iterable<Module> {
     return uri.hashCode();
   }
 
+  /**
+   * Add a new dependency.
+   *
+   * @param dependency A new dependency. Required.
+   */
   public void add(final Module dependency) {
+    notNull(dependency, "The dependency is required.");
     dependencies.add(dependency);
   }
 
+  /**
+   * Remove an existing dependency.
+   *
+   * @param dependency A dependency. Required.
+   */
   public void remove(final Module dependency) {
+    notNull(dependency, "The dependency is required.");
     dependencies.remove(dependency);
   }
 
@@ -98,6 +123,12 @@ public class Module implements Iterable<Module> {
     return dependencies.iterator();
   }
 
+  /**
+   * Return all the module's dependencies.
+   *
+   * @param includeTransitive True, if transitive dependencies should be returned.
+   * @return All the module's dependencies.
+   */
   public List<Module> getDependencies(final boolean includeTransitive) {
     if (includeTransitive) {
       return new OncePerModuleVisitor<List<Module>>() {
@@ -114,17 +145,31 @@ public class Module implements Iterable<Module> {
           dependencies.add(module);
           return true;
         }
-      }.walk(this);
+      } .walk(this);
     }
     return new ArrayList<Module>(dependencies);
   }
 
+  /**
+   * Print a tree of the module. Useful for debugging.
+   *
+   * @return Print a tree of the module. Useful for debugging.
+   */
   public String toStringTree() {
     return new ModuleVisitor<String>() {
+      /**
+       * The buffer.
+       */
       StringBuilder buffer = new StringBuilder();
 
+      /**
+       * The node's level.
+       */
       int level = 0;
 
+      /**
+       * The tab's size.
+       */
       int tabSize = 3;
 
       @Override
@@ -145,7 +190,7 @@ public class Module implements Iterable<Module> {
       public void endvisit(final Module module) {
         level -= tabSize;
       }
-    }.walk(this);
+    } .walk(this);
   }
 
   @Override

@@ -117,12 +117,26 @@ public class Amd4j {
     return this;
   }
 
+  /**
+   * Analyze a module by collecting all the dependencies.
+   *
+   * @param uri The module uri. Required.
+   * @return A module and their dependencies.
+   * @throws IOException If the module can't read.
+   */
   public Module analyze(final URI uri) throws IOException {
     notNull(uri, "The config is required.");
 
     return analyze(new Config(uri.toString()));
   }
 
+  /**
+   * Analyze a module by collecting all the dependencies.
+   *
+   * @param config The configuration options. Required.
+   * @return A module and their dependencies.
+   * @throws IOException If the module can't read.
+   */
   public Module analyze(final Config config) throws IOException {
     notNull(config, "The config is required.");
 
@@ -132,11 +146,29 @@ public class Amd4j {
     return module;
   }
 
+  /**
+   * Merge all the dependencies into one single file, name anonymous modules and make AMD compatible
+   * whose script that has a shim entry in the configuration options.
+   *
+   * @param config The configuration options. Required.
+   * @return The output file (same as {@link Config#getOut()}.
+   * @throws IOException If a file can't be read or write.
+   */
   public File optimize(final Config config) throws IOException {
     Module module = analyze(config);
     return new Optimizer(config, transformers).walk(module);
   }
 
+  /**
+   * Walk through a module and collect dependencies.
+   *
+   * @param modulePath The module's path.
+   * @param moduleName The module's name.
+   * @param config The configuration options.
+   * @param registry The already processed modules.
+   * @return A module or null if the module should be skipped.
+   * @throws IOException If a file can't be read or write.
+   */
   private Module walk(final String modulePath, final String moduleName, final Config config,
       final Map<URI, Module> registry) throws IOException {
     String path = config.resolvePath(modulePath);

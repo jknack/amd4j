@@ -146,38 +146,4 @@ public class Shim {
     return deps == null || deps.isEmpty() ? empty : "[\"" + join(deps, "\", \"") + "\"]";
   }
 
-  /**
-   * Make the module AMD compatible.
-   *
-   * @param module The candidate module. Required.
-   * @return An AMD function.
-   */
-  public String shim(final String moduleName) {
-    notNull(moduleName, "The module is required.");
-    StringBuilder buffer = new StringBuilder();
-    if (init == null) {
-      if (exports == null) {
-        buffer.append("\ndefine(\"").append(moduleName).append("\", function(){});\n");
-      } else {
-        buffer.append("\ndefine(\"").append(moduleName).append("\", ").append(depsToString("[]"))
-            .append(", (function (global) {\n");
-        buffer.append("    return function () {\n");
-        buffer.append("        var ret, fn;\n");
-        buffer.append("        return ret || global.").append(exports).append(";\n");
-        buffer.append("    };\n");
-        buffer.append("}(this)));\n");
-      }
-    } else {
-      buffer.append("\ndefine(\"").append(moduleName).append("\", ").append(depsToString("[]"))
-          .append(", (function (global) {\n");
-      buffer.append("    return function () {\n");
-      buffer.append("        var ret, fn;\n");
-      buffer.append("fn = ").append(init).append(";\n");
-      buffer.append("        ret = fn.apply(global, arguments);\n");
-      buffer.append("        return ret || global.").append(exports).append(";\n");
-      buffer.append("    };\n");
-      buffer.append("}(this)));\n");
-    }
-    return buffer.toString();
-  }
 }

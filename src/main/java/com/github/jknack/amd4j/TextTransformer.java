@@ -26,7 +26,7 @@ import org.apache.commons.lang3.text.translate.LookupTranslator;
 import org.apache.commons.lang3.text.translate.UnicodeEscaper;
 
 /**
- * Embedded text dependencies as an AMD module.
+ * Embed text dependencies as an AMD module.
  *
  * @author edgar.espina
  * @since 0.1.0
@@ -59,7 +59,8 @@ public class TextTransformer implements Transformer {
   }
 
   @Override
-  public StringBuilder transform(final Config config, final String name, final StringBuilder content) {
+  public StringBuilder transform(final Config config, final String name,
+      final StringBuilder content) {
     if (config.isInlineText()) {
       StringBuilder define = new StringBuilder("define([],function () {");
       define.append(" return '")
