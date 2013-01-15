@@ -6,13 +6,20 @@
   <groupId>com.github.jknack</groupId>
   <artifactId>amd4j</artifactId>
   <version>0.1.0-SNAPSHOT</version>
-  <packaging>jar</packaging>
+  <packaging>pom</packaging>
 
   <name>amd4j</name>
-  <description>A command line tool for running JavaScript scripts that use the Asychronous Module Defintion API (AMD) for declaring and using JavaScript modules and regular JavaScript script files.</description>
+
+  <description>A command line tool for running JavaScript scripts that
+    use the Asychronous Module Defintion API (AMD) for declaring and
+    using JavaScript modules and regular JavaScript script files.
+  </description>
 
   <url>https://github.com/jknack/amd4j</url>
 
+  <modules>
+    <module>amd4j-core</module>
+  </modules>
   <licenses>
     <license>
       <name>The Apache Software License, Version 2.0</name>
@@ -30,7 +37,8 @@
 
   <scm>
     <connection>scm:git:git@github.com:jknack/amd4j.git</connection>
-    <developerConnection>scm:git:git@github.com:jknack/amd4j.git</developerConnection>
+    <developerConnection>scm:git:git@github.com:jknack/amd4j.git
+    </developerConnection>
     <url>scm:git:git@github.com:jknack/amd4j.git</url>
     <tag>HEAD</tag>
   </scm>
@@ -39,98 +47,102 @@
     <snapshotRepository>
       <id>sonatype-nexus-snapshots</id>
       <name>Sonatype Nexus Snapshots</name>
-      <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+      <url>https://oss.sonatype.org/content/repositories/snapshots/
+      </url>
     </snapshotRepository>
     <repository>
       <id>sonatype-nexus-staging</id>
       <name>Nexus Release Repository</name>
-      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/
+      </url>
     </repository>
   </distributionManagement>
 
-  <dependencies>
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-lang3</artifactId>
-      <version>3.1</version>
-    </dependency>
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-lang3</artifactId>
+        <version>3.1</version>
+      </dependency>
 
       <!-- Logging System -->
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-      <version>1.6.4</version>
-    </dependency>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>1.6.4</version>
+      </dependency>
 
-    <dependency>
-      <groupId>commons-io</groupId>
-      <artifactId>commons-io</artifactId>
-      <version>2.4</version>
-    </dependency>
+      <dependency>
+        <groupId>commons-io</groupId>
+        <artifactId>commons-io</artifactId>
+        <version>2.4</version>
+      </dependency>
 
     <!-- Rhino -->
-    <dependency>
-      <groupId>org.mozilla</groupId>
-      <artifactId>rhino</artifactId>
-      <version>1.7R3</version>
-    </dependency>
+      <dependency>
+        <groupId>org.mozilla</groupId>
+        <artifactId>rhino</artifactId>
+        <version>1.7R3</version>
+      </dependency>
 
     <!-- Jackson 2.x -->
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-databind</artifactId>
-      <version>2.1.0</version>
-    </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-databind</artifactId>
+        <version>2.1.0</version>
+      </dependency>
 
       <!-- Test dependencies -->
-    <dependency>
-      <groupId>ch.qos.logback</groupId>
-      <artifactId>logback-classic</artifactId>
-      <version>1.0.3</version>
-      <scope>test</scope>
-    </dependency>
+      <dependency>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-classic</artifactId>
+        <version>1.0.3</version>
+        <scope>test</scope>
+      </dependency>
 
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <scope>test</scope>
-      <version>4.10</version>
-    </dependency>
+      <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <scope>test</scope>
+        <version>4.10</version>
+      </dependency>
 
-    <dependency>
-      <groupId>org.easymock</groupId>
-      <artifactId>easymock</artifactId>
-      <version>3.1</version>
-    </dependency>
+      <dependency>
+        <groupId>org.easymock</groupId>
+        <artifactId>easymock</artifactId>
+        <version>3.1</version>
+      </dependency>
 
-    <dependency>
-      <groupId>org.powermock</groupId>
-      <artifactId>powermock-api-easymock</artifactId>
-      <version>1.4.12</version>
-      <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>org.easymock</groupId>
-          <artifactId>easymock</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
+      <dependency>
+        <groupId>org.powermock</groupId>
+        <artifactId>powermock-api-easymock</artifactId>
+        <version>1.4.12</version>
+        <scope>test</scope>
+        <exclusions>
+          <exclusion>
+            <groupId>org.easymock</groupId>
+            <artifactId>easymock</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
 
-    <dependency>
-      <groupId>org.powermock</groupId>
-      <artifactId>powermock-module-junit4</artifactId>
-      <version>1.4.12</version>
-      <scope>test</scope>
-    </dependency>
+      <dependency>
+        <groupId>org.powermock</groupId>
+        <artifactId>powermock-module-junit4</artifactId>
+        <version>1.4.12</version>
+        <scope>test</scope>
+      </dependency>
 
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-exec</artifactId>
-      <version>1.1</version>
-      <scope>test</scope>
-    </dependency>
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-exec</artifactId>
+        <version>1.1</version>
+        <scope>test</scope>
+      </dependency>
 
-  </dependencies>
+    </dependencies>
+  </dependencyManagement>
 
   <build>
     <plugins>
