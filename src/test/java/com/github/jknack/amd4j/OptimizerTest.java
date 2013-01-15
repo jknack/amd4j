@@ -9,16 +9,26 @@ import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 import org.junit.Assume;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class OptimizerTest {
 
+  /**
+   * The logging system.
+   */
+  private final Logger logger = LoggerFactory.getLogger(getClass());
+
   @Test
   public void z() throws IOException {
+    long start = System.currentTimeMillis();
     File foutput = new File("target/z.bundle.js");
     foutput.delete();
-    new Optimizer()
+    new Amd4j()
         .with(new TextTransformer())
         .optimize(new Config(".", "z", foutput));
+    long end = System.currentTimeMillis();
+    logger.info("amd4j took: {}ms", end - start);
 
     assertTrue(foutput.exists());
 
@@ -37,9 +47,10 @@ public class OptimizerTest {
 
   @Test
   public void complex() throws IOException {
+    long start = System.currentTimeMillis();
     File foutput = new File("target/complex.bundle.js");
     foutput.delete();
-    new Optimizer()
+    new Amd4j()
         .with(new TextTransformer())
         .optimize(new Config(".", "pages/home/home", foutput)
             .setFindNestedDependencies(true)
@@ -47,6 +58,8 @@ public class OptimizerTest {
             .path("topbar", "widgets/topbar/topbar")
         );
 
+    long end = System.currentTimeMillis();
+    logger.info("amd4j took: {}ms", end - start);
     assertTrue(foutput.exists());
 
     Assume.assumeTrue(RequireOptimizer.isNodeJsPresent());
@@ -65,5 +78,6 @@ public class OptimizerTest {
     String output = FileUtils.readFileToString(foutput);
     String expected = FileUtils.readFileToString(fexpected);
     assertEquals(expected, output);
+
   }
 }

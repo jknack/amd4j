@@ -14,7 +14,7 @@ public class ShimTest {
     Shim shim = new Shim();
     assertEquals("\n" +
         "define(\"empty\", function(){});\n"
-        , shim.shim(new Module("empty", "var x=0;")));
+        , shim.shim("empty"));
   }
 
   @Test
@@ -27,7 +27,7 @@ public class ShimTest {
         "        return ret || global.backbone;\n" +
         "    };\n" +
         "}(this)));\n"
-        , shim.shim(new Module("backbone", "var x=0;")));
+        , shim.shim("backbone"));
   }
 
   @Test
@@ -40,7 +40,7 @@ public class ShimTest {
         "        return ret || global.backbone;\n" +
         "    };\n" +
         "}(this)));\n"
-        , shim.shim(new Module("backbone", "var x=0;")));
+        , shim.shim("backbone"));
   }
 
   @Test
@@ -55,7 +55,7 @@ public class ShimTest {
         "        return ret || global.jQuery;\n" +
         "    };\n" +
         "}(this)));\n"
-        , shim.shim(new Module("jquery", "$")));
+        , shim.shim("jquery"));
   }
 
   @Test
@@ -71,6 +71,6 @@ public class ShimTest {
         "        return ret || global.jQuery;\n" +
         "    };\n" +
         "}(this)));\n"
-        , shim.shim(new Module("jquery", "$")));
+        , shim.shim("jquery"));
   }
 }

@@ -17,6 +17,8 @@
  */
 package com.github.jknack.amd4j;
 
+import java.net.URI;
+
 import org.apache.commons.lang3.text.translate.AggregateTranslator;
 import org.apache.commons.lang3.text.translate.CharSequenceTranslator;
 import org.apache.commons.lang3.text.translate.EntityArrays;
@@ -52,25 +54,20 @@ public class TextTransformer implements Transformer {
       );
 
   @Override
-  public boolean apply(final ResourceURI uri) {
-    return "text!".equals(uri.schema);
+  public boolean apply(final URI uri) {
+    return "text".equals(uri.getScheme());
   }
 
   @Override
-  public Module transform(final Config config, final Module module) {
+  public StringBuilder transform(final Config config, final String name, final StringBuilder content) {
     if (config.isInlineText()) {
       StringBuilder define = new StringBuilder("define([],function () {");
       define.append(" return '")
-          .append(ESCAPE_ECMASCRIPT.translate(module.content.toString())).append("';");
+          .append(ESCAPE_ECMASCRIPT.translate(content)).append("';");
       define.append("});\n");
-      Module output = new Module(module.name, define);
-      output.dependencies.add("text");
-      output.dependencies.addAll(module.dependencies);
-      return output;
+      return define;
     } else {
-      module.content.setLength(0);
-      module.dependencies.add("text");
-      return module;
+      return new StringBuilder();
     }
   }
 

@@ -17,6 +17,8 @@
  */
 package com.github.jknack.amd4j;
 
+import java.net.URI;
+
 /**
  * Append a ';' to a module.
  *
@@ -26,14 +28,13 @@ package com.github.jknack.amd4j;
 public class SemicolonAppenderPlugin implements Transformer {
 
   @Override
-  public boolean apply(final ResourceURI uri) {
+  public boolean apply(final URI uri) {
     return true;
   }
 
   @Override
-  public Module transform(final Config config, final Module module) {
+  public StringBuilder transform(final Config config, final String name, final StringBuilder content) {
     // make sure it has a ';'
-    StringBuilder content = module.content;
     int idx = content.length() - 1;
     while (idx >= 0 && Character.isWhitespace(content.charAt(idx))) {
       idx--;
@@ -41,7 +42,7 @@ public class SemicolonAppenderPlugin implements Transformer {
     if (idx >= 0 && idx < content.length() && content.charAt(idx) != ';') {
       content.append(';');
     }
-    return module;
+    return content;
   }
 
 }

@@ -152,14 +152,14 @@ public class Shim {
    * @param module The candidate module. Required.
    * @return An AMD function.
    */
-  public String shim(final Module module) {
-    notNull(module, "The module is required.");
+  public String shim(final String moduleName) {
+    notNull(moduleName, "The module is required.");
     StringBuilder buffer = new StringBuilder();
     if (init == null) {
       if (exports == null) {
-        buffer.append("\ndefine(\"").append(module.name).append("\", function(){});\n");
+        buffer.append("\ndefine(\"").append(moduleName).append("\", function(){});\n");
       } else {
-        buffer.append("\ndefine(\"").append(module.name).append("\", ").append(depsToString("[]"))
+        buffer.append("\ndefine(\"").append(moduleName).append("\", ").append(depsToString("[]"))
             .append(", (function (global) {\n");
         buffer.append("    return function () {\n");
         buffer.append("        var ret, fn;\n");
@@ -168,7 +168,7 @@ public class Shim {
         buffer.append("}(this)));\n");
       }
     } else {
-      buffer.append("\ndefine(\"").append(module.name).append("\", ").append(depsToString("[]"))
+      buffer.append("\ndefine(\"").append(moduleName).append("\", ").append(depsToString("[]"))
           .append(", (function (global) {\n");
       buffer.append("    return function () {\n");
       buffer.append("        var ret, fn;\n");
@@ -177,10 +177,6 @@ public class Shim {
       buffer.append("        return ret || global.").append(exports).append(";\n");
       buffer.append("    };\n");
       buffer.append("}(this)));\n");
-    }
-    // add dependencies
-    if (deps != null) {
-      module.dependencies.addAll(deps);
     }
     return buffer.toString();
   }

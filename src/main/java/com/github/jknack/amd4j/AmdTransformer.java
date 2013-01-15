@@ -17,6 +17,7 @@
  */
 package com.github.jknack.amd4j;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,11 +52,6 @@ public class AmdTransformer implements Transformer {
   public static class AmdVisitor implements NodeVisitor {
 
     /**
-     * The candidate module.
-     */
-    private Module module;
-
-    /**
      * Keep track of inserted chunks.
      */
     private int offset = 1;
@@ -75,15 +71,20 @@ public class AmdTransformer implements Transformer {
      */
     private boolean defineFound;
 
+    private String moduleName;
+
+    private StringBuilder content;
+
     /**
      * Creates a new {@link AmdVisitor}.
      *
      * @param config The configuration options.
-     * @param module The candidate module.
+     * @param moduleName The module's name.
      */
-    public AmdVisitor(final Config config, final Module module) {
+    public AmdVisitor(final Config config, final String moduleName, final StringBuilder content) {
       this.config = config;
-      this.module = module;
+      this.moduleName = moduleName;
+      this.content = content;
       lines.add(0);
     }
 
@@ -95,27 +96,14 @@ public class AmdTransformer implements Transformer {
      */
     public int lineAt(final int line) {
       int idx = lines.get(lines.size() - 1);
-      while (lines.size() <= line && idx < module.content.length()) {
-        int ch = module.content.charAt(idx);
+      while (lines.size() <= line && idx < content.length()) {
+        int ch = content.charAt(idx);
         if (ch == '\n') {
           lines.add(idx + 1);
         }
         idx++;
       }
       return lines.get(line);
-    }
-
-    /**
-     * Shim, the module if necessary or possible.
-     */
-    public void shim() {
-      if (!defineFound) {
-        Shim shim = config.getShim(module.name);
-        if (shim != null) {
-          String defineFn = shim.shim(module);
-          module.content.append(defineFn);
-        }
-      }
     }
 
     @Override
@@ -142,9 +130,9 @@ public class AmdTransformer implements Transformer {
       if (useStrict.equals(node.getValue()) && !config.isUseStrict()
           && node.getParent() instanceof ExpressionStatement) {
         int offset = lineAt(node.getLineno() - 1) + this.offset;
-        int start = module.content.indexOf(useStrict, offset) - 1;
-        int end = module.content.indexOf(";", start) + 1;
-        module.content.replace(start, end, "");
+        int start = content.indexOf(useStrict, offset) - 1;
+        int end = content.indexOf(";", start) + 1;
+        content.replace(start, end, "");
         this.offset -= useStrict.length();
       }
       return true;
@@ -163,11 +151,6 @@ public class AmdTransformer implements Transformer {
         if ("define".equals(name)) {
           defineFound = true;
           visitDefine(node);
-        } else if ("require".equals(name)) {
-          int depth = node.getParent().depth() - 1;
-          if (config.isFindNestedDependencies() || depth == 0) {
-            visitDependencies(node, 0);
-          }
         }
       }
       return true;
@@ -202,61 +185,44 @@ public class AmdTransformer implements Transformer {
       }
       // Should we add module's name?
       int offset = lineAt(node.getLineno() - 1) + node.getLp() + this.offset;
-      int idx = 1;
       if (!hasName) {
-        String chunk = "'" + module.name + "',";
-        module.content.insert(offset, chunk);
+        String chunk = "'" + moduleName + "',";
+        content.insert(offset, chunk);
         offset = chunk.length();
-        idx = 0;
       }
       if (!hasDep) {
-        int newOffset = module.content.indexOf(",", offset) + 1;
+        int newOffset = content.indexOf(",", offset) + 1;
         String chunk = "[],";
-        module.content.insert(newOffset, chunk);
+        content.insert(newOffset, chunk);
         offset = chunk.length();
       }
-      // collect dependencies
-      visitDependencies(node, idx);
     }
 
-    /**
-     * Report module's dependencies.
-     *
-     * @param node The function's call.
-     * @param idx The start argument index.
-     */
-    private void visitDependencies(final FunctionCall node, final int idx) {
-      List<AstNode> arguments = node.getArguments();
-      if (arguments.size() > idx) {
-        AstNode arg0 = arguments.get(idx);
-        if (arg0 instanceof ArrayLiteral) {
-          ArrayLiteral array = (ArrayLiteral) arg0;
-          List<AstNode> dependencyList = array.getElements();
-          for (AstNode dependencyNode : dependencyList) {
-            StringLiteral stringLiteral = (StringLiteral) dependencyNode;
-            module.dependencies.add(stringLiteral.getValue());
-          }
-        }
-      }
-    }
   }
 
   @Override
-  public boolean apply(final ResourceURI uri) {
+  public boolean apply(final URI uri) {
     return true;
   }
 
   @Override
-  public Module transform(final Config config, final Module module) {
-    if (module.content.length() == 0) {
-      return module;
+  public StringBuilder transform(final Config config, final String name, final StringBuilder content) {
+    if (content.length() == 0) {
+      return content;
     }
     Parser parser = new Parser();
-    AmdVisitor visitor = new AmdVisitor(config, module);
-    AstRoot node = parser.parse(module.content.toString(), module.name, 1);
+    AmdVisitor visitor = new AmdVisitor(config, name, content);
+    AstRoot node = parser.parse(content.toString(), name, 1);
     node.visit(visitor);
-    visitor.shim();
-    return module;
+    // shim
+    if (!visitor.defineFound) {
+      Shim shim = config.getShim(name);
+      if (shim != null) {
+        String defineFn = shim.shim(name);
+        content.append(defineFn);
+      }
+    }
+    return content;
   }
 
 }

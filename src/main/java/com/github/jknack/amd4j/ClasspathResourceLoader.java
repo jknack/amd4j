@@ -20,6 +20,7 @@ package com.github.jknack.amd4j;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 
 import org.apache.commons.io.IOUtils;
 
@@ -51,7 +52,7 @@ public class ClasspathResourceLoader implements ResourceLoader {
   }
 
   @Override
-  public boolean exists(final ResourceURI uri) throws IOException {
+  public boolean exists(final URI uri) throws IOException {
     return process(uri, new StreamHandler<Boolean>() {
       @Override
       public Boolean handle(final InputStream in) throws IOException {
@@ -61,7 +62,7 @@ public class ClasspathResourceLoader implements ResourceLoader {
   }
 
   @Override
-  public String load(final ResourceURI uri) throws IOException {
+  public String load(final URI uri) throws IOException {
     return process(uri, new StreamHandler<String>() {
       @Override
       public String handle(final InputStream in) throws IOException {
@@ -82,12 +83,11 @@ public class ClasspathResourceLoader implements ResourceLoader {
    * @return The resulting value.
    * @throws IOException If the file isn't found.
    */
-  private <V> V process(final ResourceURI uri, final StreamHandler<V> handler)
+  private <V> V process(final URI uri, final StreamHandler<V> handler)
       throws IOException {
-    String path = uri.baseUrl + uri.path;
     InputStream input = null;
     try {
-      input = getClass().getResourceAsStream(path);
+      input = getClass().getResourceAsStream(uri.getPath());
       return handler.handle(input);
     } finally {
       IOUtils.closeQuietly(input);

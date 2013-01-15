@@ -274,6 +274,39 @@ public class Config {
 
   /**
    * Creates a new {@link Config} object.
+   *
+   * @param name The module's name. Required.
+   * @param out The output file. Required.
+   */
+  public Config(final String name, final File out) {
+    setBaseUrl("/");
+    setName(name);
+    setOut(out);
+  }
+
+  /**
+   * Creates a new {@link Config} object.
+   *
+   * @param baseUrl The base url. Required.
+   * @param name The module's name. Required.
+   */
+  public Config(final String baseUrl, final String name) {
+    setBaseUrl(baseUrl);
+    setName(name);
+  }
+
+  /**
+   * Creates a new {@link Config} object.
+   *
+   * @param name The module's name. Required.
+   */
+  public Config(final String name) {
+    setBaseUrl("/");
+    setName(name);
+  }
+
+  /**
+   * Creates a new {@link Config} object.
    */
   public Config() {
   }

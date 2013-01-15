@@ -22,6 +22,7 @@ import static org.apache.commons.lang3.Validate.notNull;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 
 import org.apache.commons.io.FileUtils;
 
@@ -58,12 +59,12 @@ public class FileResourceLoader implements ResourceLoader {
   }
 
   @Override
-  public boolean exists(final ResourceURI uri) throws IOException {
+  public boolean exists(final URI uri) throws IOException {
     return toFile(uri).exists();
   }
 
   @Override
-  public String load(final ResourceURI uri) throws IOException {
+  public String load(final URI uri) throws IOException {
     return FileUtils.readFileToString(toFile(uri), "UTF-8");
   }
 
@@ -73,8 +74,8 @@ public class FileResourceLoader implements ResourceLoader {
    * @param uri The candidate uri.
    * @return A file that represent the uri.
    */
-  private File toFile(final ResourceURI uri) {
-    return new File(new File(baseDir, uri.baseUrl), uri.path);
+  private File toFile(final URI uri) {
+    return new File(baseDir,  uri.getPath());
   }
 
 }
