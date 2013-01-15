@@ -151,12 +151,13 @@ public class Amd4j {
    * whose script that has a shim entry in the configuration options.
    *
    * @param config The configuration options. Required.
-   * @return The output file (same as {@link Config#getOut()}.
+   * @return The module graph.
    * @throws IOException If a file can't be read or write.
    */
-  public File optimize(final Config config) throws IOException {
+  public Module optimize(final Config config) throws IOException {
     Module module = analyze(config);
-    return new Optimizer(config, transformers).walk(module);
+    new Optimizer(config, transformers).walk(module);
+    return module;
   }
 
   /**
@@ -239,9 +240,19 @@ public class Amd4j {
    */
   private static URI newURI(final String baseUrl, final String path) {
     notEmpty(baseUrl, "The baseUrl is required.");
+    String normBaseUrl = baseUrl;
+    if (!normBaseUrl.startsWith(File.separator)) {
+      normBaseUrl = File.separator + normBaseUrl;
+    }
+    if (!normBaseUrl.endsWith(File.separator)) {
+      normBaseUrl += File.separator;
+    }
     int idx = Math.max(0, path.indexOf('!') + 1);
     StringBuilder uri = new StringBuilder(path);
-    uri.insert(idx, baseUrl.equals(".") ? "/" : baseUrl);
+    if (uri.charAt(idx) == File.separatorChar) {
+      uri.deleteCharAt(idx);
+    }
+    uri.insert(idx, normBaseUrl);
     return newURI(uri.toString());
   }
 
@@ -255,7 +266,7 @@ public class Amd4j {
   private static URI newURI(final String path) {
     notEmpty(path, "The path is required.");
 
-    String uri = path.replace("//", "/").replace("!", ":");
+    String uri = path.replace("!", ":");
     return URI.create(uri);
   }
 }

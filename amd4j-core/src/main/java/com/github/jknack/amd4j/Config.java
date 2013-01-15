@@ -18,7 +18,6 @@
 package com.github.jknack.amd4j;
 
 import static org.apache.commons.lang3.StringUtils.isEmpty;
-import static org.apache.commons.lang3.Validate.isTrue;
 import static org.apache.commons.lang3.Validate.notEmpty;
 import static org.apache.commons.lang3.Validate.notNull;
 
@@ -410,7 +409,7 @@ public class Config {
    * @return The base url.
    */
   public String getBaseUrl() {
-    return baseUrl;
+    return ".".equals(baseUrl) ? "/" : baseUrl;
   }
 
   /**
@@ -548,7 +547,6 @@ public class Config {
    */
   public Config setOut(final File out) {
     notNull(out, "The out is required.");
-    isTrue(out.getParentFile().exists(), "Directory not found: %s", out.getParentFile());
     this.out = out;
     return this;
   }

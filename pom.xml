@@ -19,7 +19,9 @@
 
   <modules>
     <module>amd4j-core</module>
+    <module>amd4j-tool</module>
   </modules>
+
   <licenses>
     <license>
       <name>The Apache Software License, Version 2.0</name>

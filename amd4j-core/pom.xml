@@ -43,7 +43,7 @@
       <artifactId>jackson-databind</artifactId>
     </dependency>
 
-      <!-- Test dependencies -->
+    <!-- Test dependencies -->
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
