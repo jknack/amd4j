@@ -19,14 +19,14 @@ why not?
 ======
 I love AMD!! So, I created this tool (inspired by [r.js](http://requirejs.org/docs/optimization.html)) for processing AMD scripts in Java where ```node.js``` isn't an option
 
-Usage
+API Usage
 ======
 
 **Optimizing an AMD script**:
 
 ```java
   new Amd4j()
-    .optimize(new Config("module.js", new File(out.js)));
+    .optimize(new Config("module.js", new File("module.out.js")));
 ```
 
 **Analyzing an AMD script**:
@@ -44,12 +44,29 @@ Usage
   Iterable<Module> dependencies = result.getDependencies(true);
 ```
 
+Command Line Usage
+======
+
+**Optimizing an AMD script**:
+
+```shell
+java -jar amd4j-tool.jar -o baseUrl=. name=module.js out=module.opt.js
+```
+
+**Analyzing an AMD script**:
+
+```shell
+java -jar amd4j-tool.jar -a baseUrl=. name=module.js
+```
+
 what is supported so far?
 ======
 
 * Processing of single AMD script as input
 * Naming modules (the optimizer is able to insert module's names)
 * Dependency resolution support
+* build profile support
+* paths support
 * ```text!``` plugin support
 * ```shim``` support
 
