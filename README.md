@@ -8,12 +8,11 @@ This projects aims to be an alternative to the Rhino version of [r.js](http://re
 why?
 ======
 Beside all the good work and efforts that [@jrburke](https://github.com/jrburke) did in [r.js](http://requirejs.org/docs/optimization.html) for Java.
+I found ```r.js``` extremely slow because the use of Rhino.
 
-I found r.js extremely slow because the use of Rhino.
+So, **amd4j need to be extremely fast**.
 
-Please note that r.js for Node is exactly the opposite: *extremely fast*
-
-So, **amd4j need to be extremely fast.**
+Please note that ```r.js``` for Node is exactly the opposite: *extremely fast*.
 
 why not?
 ======
@@ -89,15 +88,15 @@ help and support
 
 related projects
 ======
- * [r.js](http://requirejs.org/docs/optimization.html)
+ [r.js](http://requirejs.org/docs/optimization.html)
 
 credits
 ======
- * [@jrburke](https://github.com/jrburke)
+ [@jrburke](https://github.com/jrburke)
 
 author
 ======
- * [@edgarespina](https://twitter.com/edgarespina)
+ [@edgarespina](https://twitter.com/edgarespina)
 
 license
 ======
