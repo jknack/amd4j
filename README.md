@@ -12,8 +12,6 @@ I found ```r.js``` extremely slow because the use of Rhino.
 
 So, **amd4j need to be extremely fast**.
 
-Please note that ```r.js``` for Node is exactly the opposite: *extremely fast*.
-
 why not?
 ======
 I love AMD!! So, I created this tool (inspired by [r.js](http://requirejs.org/docs/optimization.html)) for processing AMD scripts in Java where ```node.js``` isn't an option
