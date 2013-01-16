@@ -409,7 +409,7 @@ public class Config {
    * @return The base url.
    */
   public String getBaseUrl() {
-    return ".".equals(baseUrl) ? "/" : baseUrl;
+    return baseUrl;
   }
 
   /**

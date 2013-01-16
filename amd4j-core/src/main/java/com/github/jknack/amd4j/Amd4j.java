@@ -242,6 +242,9 @@ public class Amd4j {
   private static URI newURI(final String baseUrl, final String path) {
     notEmpty(baseUrl, "The baseUrl is required.");
     String normBaseUrl = baseUrl;
+    if (".".equals(normBaseUrl)) {
+      normBaseUrl = File.separator;
+    }
     if (!normBaseUrl.startsWith(File.separator)) {
       normBaseUrl = File.separator + normBaseUrl;
     }
