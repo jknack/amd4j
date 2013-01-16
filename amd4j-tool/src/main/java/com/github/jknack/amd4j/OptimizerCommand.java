@@ -1,8 +1,7 @@
 package com.github.jknack.amd4j;
 
 import static org.apache.commons.lang3.StringUtils.isEmpty;
-import static org.apache.commons.lang3.Validate.notEmpty;
-import static org.apache.commons.lang3.Validate.notNull;
+import static org.apache.commons.lang3.Validate.isTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,38 +11,51 @@ import java.util.List;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 
-@Parameters(commandNames = {"-o", "optimize" }, separators = "=")
+@Parameters(commandNames = "-o", separators = "=")
 public class OptimizerCommand extends BaseCommand {
 
-  @Parameter(names = "-out", description = "output file")
+  @Parameter(names = "-out", description = "Output file")
   private File out;
-
-  @Parameter(names = "-findNestedDependencies",
-      description = "Finds require() dependencies inside a require() or define call. By default" +
-          "this value is false, because those resources should be considered " +
-          "dynamic/runtime calls.", arity = 1)
-  private Boolean findNestedDependencies;
 
   @Parameter(names = "-inlineText",
       description = "Inlines the text for any text! dependencies, to avoid the separate " +
-          "async XMLHttpRequest calls to load those dependencies.", arity = 1)
+          "async XMLHttpRequest calls to load those dependencies. Default: true", arity = 1)
   private Boolean inlineText;
 
   @Parameter(names = "-useStrict", description = "Allow \"use strict\"; be included in the " +
-      "JavaScript files. Default is: false", arity = 1)
+      "JavaScript files. Default: false", arity = 1)
   private Boolean useStrict;
 
-  @Parameter(names = "-verbose", description="Level of verbosity")
-  private boolean verbose = false;
-
-  @Parameter(description = "build's profile")
+  @Parameter(description = "[build.js]")
   private List<String> buildFile = new ArrayList<String>();
 
   @Override
   public void execute() throws IOException {
-    Config config = new Config();
+    Config config = newConfig();
+    isTrue(!isEmpty(config.getName()), "The following option is required: %s", "name");
+    isTrue(config.getOut() != null, "The following option is required: %s", "out");
+    isTrue(!isEmpty(config.getBaseUrl()), "The following option is required: %s", "baseUrl");
+
+    System.out.printf("optimizing %s...\n", name);
+    if (verbose) {
+      System.out.printf("options:\n%s\n", config);
+    }
+    Amd4j amd4j = newAmd4j(config.getBaseUrl());
+    config.setBaseUrl("/");
+    long start = System.currentTimeMillis();
+    Module module = amd4j.optimize(config);
+    long end = System.currentTimeMillis();
+    System.out.printf("%s\n", module.toStringTree().trim());
+    System.out.printf("optimization of %s took %sms\n\n", out.getPath(), end - start,
+        out.getAbsolutePath());
+  }
+
+  private Config newConfig() throws IOException {
+    final Config config;
     if (buildFile.size() == 1) {
       config = Config.parse(new File(buildFile.get(0)));
+    } else {
+      config = new Config();
     }
     if (!isEmpty(name)) {
       config.setName(name);
@@ -65,21 +77,6 @@ public class OptimizerCommand extends BaseCommand {
     }
     // add paths
     registerPaths(config);
-    notEmpty(config.getName(), "The following option is required: %s", "name");
-    notNull(config.getOut(), "The following option is required: %s", "out");
-    notNull(config.getBaseUrl(), "The following option is required: %s", "baseUrl");
-
-    System.out.printf("optimizing %s...\n", name);
-    if (verbose) {
-      System.out.printf("options:\n%s\n", config);
-    }
-    Amd4j amd4j = newAmd4j(config.getBaseUrl());
-    config.setBaseUrl("/");
-    long start = System.currentTimeMillis();
-    Module module = amd4j.optimize(config);
-    long end = System.currentTimeMillis();
-    System.out.printf("%s\n", module.toStringTree().trim());
-    System.out.printf("optimization of %s took %sms\n\n", out.getPath(), end - start,
-        out.getAbsolutePath());
+    return config;
   }
 }

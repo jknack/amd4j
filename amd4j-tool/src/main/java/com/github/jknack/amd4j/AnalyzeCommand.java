@@ -1,36 +1,33 @@
 package com.github.jknack.amd4j;
 
 import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static org.apache.commons.lang3.Validate.isTrue;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
-import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 
-@Parameters(commandNames = {"-a", "analyze" }, separators = "=")
+@Parameters(commandNames = "-a", separators = "=")
 public class AnalyzeCommand extends BaseCommand {
-
-  @Parameter(description = "file names")
-  private List<String> files = new ArrayList<String>();
 
   @Override
   public void execute() throws IOException {
     Amd4j amd4j = newAmd4j();
-    if (!isEmpty(name)) {
-      files.add(0, name);
+    isTrue(!isEmpty(name), "no input file to process");
+    Config config = new Config(name)
+        .setBaseUrl(isEmpty(baseUrl) ? "." : baseUrl);
+    if (findNestedDependencies != null) {
+      config.setFindNestedDependencies(findNestedDependencies);
     }
-    for (String file : files) {
-      Config config = new Config(file)
-          .setBaseUrl(isEmpty(baseUrl) ? "/" : baseUrl);
-      registerPaths(config);
-      System.out.printf("analyzing %s...\n", file);
-      long start = System.currentTimeMillis();
-      Module module = amd4j.analyze(config);
-      long end = System.currentTimeMillis();
-      System.out.printf("%s\n", module.toStringTree().trim());
-      System.out.printf("analysis of %s took %sms\n\n", module.uri, end - start);
+    registerPaths(config);
+    System.out.printf("analyzing %s...\n", name);
+    if (verbose) {
+      System.out.printf("options:\n%s\n", config);
     }
+    long start = System.currentTimeMillis();
+    Module module = amd4j.analyze(config);
+    long end = System.currentTimeMillis();
+    System.out.printf("%s\n", module.toStringTree().trim());
+    System.out.printf("analysis of %s took %sms\n\n", module.uri, end - start);
   }
 }

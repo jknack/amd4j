@@ -227,6 +227,7 @@ public class Amd4j {
         return candidate;
       }
     }
+    //force a file not found exception
     throw new FileNotFoundException(uri.toString());
   }
 
