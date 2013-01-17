@@ -17,81 +17,78 @@
  */
 package com.github.jknack.amd4j;
 
+import static org.apache.commons.io.FilenameUtils.getName;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.apache.commons.lang3.Validate.isTrue;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.Parameters;
 
 /**
- * Run the optimize command.
+ * Optimize an AMD script file.
  *
- * @author edgar.espina
+ * @goal optimize
+ * @phase prepare-package
  * @since 0.1.0
  */
-@Parameters(commandNames = "-o", separators = "=")
-public class OptimizerCommand extends BaseCommand {
+public class OptimizeMojo extends Amd4jMojo {
 
   /**
    * The output's file.
+   *
+   * @parameter
+   * @required
    */
-  @Parameter(names = "-out", description = "Output file")
-  private File out;
+  private String out;
 
   /**
    * Inline text in the final output. Default: true.
+   *
+   * @parameter
    */
-  @Parameter(names = "-inlineText",
-      description = "Inlines the text for any text! dependencies, to avoid the separate "
-          + "async XMLHttpRequest calls to load those dependencies. Default: true", arity = 1)
   private Boolean inlineText;
 
   /**
    * Remove "useStrict"; statement from output.
+   *
+   * @parameter
    */
-  @Parameter(names = "-useStrict", description = "Allow \"use strict\"; be included in the "
-      + "JavaScript files. Default: false", arity = 1)
   private Boolean useStrict;
 
   /**
    * An optional build profile.
+   *
+   * @parameter
    */
-  @Parameter(description = "[build.js]")
-  private List<String> buildFile = new ArrayList<String>();
+  private String buildFile;
 
   @Override
   public void doExecute(final Amd4j amd4j, final Config config) throws IOException {
     isTrue(config.getOut() != null, "The following option is required: %s", "out");
     isTrue(!isEmpty(config.getBaseUrl()), "The following option is required: %s", "baseUrl");
-
-    System.out.printf("optimizing %s...\n", config.getName());
+    File out = config.getOut();
+    printf("optimizing %s...", config.getName());
     long start = System.currentTimeMillis();
     Module module = amd4j.optimize(config);
     long end = System.currentTimeMillis();
-    System.out.printf("%s\n", module.toStringTree().trim());
-    System.out.printf("optimization of %s took %sms\n\n", out.getPath(), end - start,
-        out.getAbsolutePath());
+    printf("result:\n%s", module.toStringTree().trim());
+    printf("optimization of %s took %sms", out.getPath(), end - start, out.getAbsolutePath());
   }
 
   @Override
   protected Config newConfig() throws IOException {
-    if (buildFile.size() == 1) {
-      return Config.parse(new File(buildFile.get(0)));
-    } else {
+    if (isEmpty(buildFile)) {
       return super.newConfig();
+    } else {
+      return Config.parse(new File(buildFile));
     }
   }
 
   @Override
-  protected Config merge(final Config config) {
-    super.merge(config);
-    if (out != null) {
-      config.setOut(out);
+  protected Config merge(final String name, final Config config) {
+    super.merge(name, config);
+    if (!isEmpty(out)) {
+      config.setOut(new File(out.replace("${script.name}", getName(name))));
     }
     if (inlineText != null) {
       config.setInlineText(inlineText.booleanValue());
@@ -100,5 +97,10 @@ public class OptimizerCommand extends BaseCommand {
       config.setUseStrict(useStrict.booleanValue());
     }
     return config;
+  }
+
+  @Override
+  protected String header(final String name) {
+    return "optimization of " + name;
   }
 }

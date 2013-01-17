@@ -20,6 +20,7 @@
   <modules>
     <module>amd4j-core</module>
     <module>amd4j-tool</module>
+    <module>amd4j-maven-plugin</module>
   </modules>
 
   <licenses>
@@ -72,6 +73,12 @@
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
+        <version>1.6.4</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-simple</artifactId>
         <version>1.6.4</version>
       </dependency>
 
@@ -177,6 +184,7 @@
           <consoleOutput>true</consoleOutput>
           <configLocation>checkstyle.xml</configLocation>
           <failsOnError>true</failsOnError>
+          <excludes>**/*Mojo*</excludes>
         </configuration>
         <executions>
           <execution>
