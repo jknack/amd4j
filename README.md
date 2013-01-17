@@ -56,6 +56,56 @@ java -jar amd4j-tool.jar -o baseUrl=. name=module.js out=module.opt.js
 java -jar amd4j-tool.jar -a baseUrl=. name=module.js
 ```
 
+Maven Usage
+======
+
+**Optimizing an AMD script**:
+
+```xml
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>com.github.jknack</groupId>
+        <artifactId>amd4j-maven-plugin</artifactId>
+        <version>${amd4j-version}</version>
+        <configuration>
+          <baseUrl>src/webapp/js</baseUrl>
+          <out>target/${script.name}.opt.js</out>
+          <inlineText>true</inlineText>
+          <useStrict>false</useStrict>
+          <buildFile></buildFile>
+
+          <!--file to be processed-->
+          <names>
+            <name>home</name>
+            <name>page</name>
+          </names>
+
+          <!--path configuration-->
+          <paths>
+            <path>jquery:empty:</path>
+            <path>topbar:widgets/topbar/topbar</path>
+            <path>sidebar:widgets/sidebar/sidebar</path>
+          </paths>
+        </configuration>
+        <executions>
+          <execution>
+            <id>optimize</id>
+            <goals>
+              <goal>optimize</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+```
+The plugin will generate two files: ```target/home.opt.js``` and ```target/page.opt.js```
+
+**Analyzing an AMD script**:
+
+Just change the goal to: ```analyze```
+
 what is supported so far?
 ======
 
