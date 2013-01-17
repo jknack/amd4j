@@ -106,12 +106,26 @@ public abstract class Amd4jMojo extends AbstractMojo {
     }
   }
 
+  /**
+   * Log the error and generate a build failure.
+   *
+   * @param name The script name.
+   * @param message The error message.
+   * @param cause The error cause.
+   * @throws MojoFailureException Generate a build failure.
+   */
   protected void processError(final String name, final String message, final Exception cause)
       throws MojoFailureException {
     getLog().error(header(name) + " failed. Reason: " + message);
     throw new MojoFailureException(message, cause);
   }
 
+  /**
+   * Generated a header for error reporting.
+   *
+   * @param name The script's name.
+   * @return A header.
+   */
   protected String header(final String name) {
     return name;
   }
@@ -162,6 +176,12 @@ public abstract class Amd4jMojo extends AbstractMojo {
     return config;
   }
 
+  /**
+   * Print a message to the maven output.
+   *
+   * @param message The message.
+   * @param args The message's arguments.
+   */
   protected void printf(final String message, final Object... args) {
     getLog().info(String.format(message, args));
   }
