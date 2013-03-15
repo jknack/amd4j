@@ -66,13 +66,12 @@ public class OptimizeMojo extends Amd4jMojo {
   public void doExecute(final Amd4j amd4j, final Config config) throws IOException {
     isTrue(config.getOut() != null, "The following option is required: %s", "out");
     isTrue(!isEmpty(config.getBaseUrl()), "The following option is required: %s", "baseUrl");
-    File out = config.getOut();
     printf("optimizing %s...", config.getName());
     long start = System.currentTimeMillis();
     Module module = amd4j.optimize(config);
     long end = System.currentTimeMillis();
     printf("result:\n%s", module.toStringTree().trim());
-    printf("optimization of %s took %sms", out.getPath(), end - start, out.getAbsolutePath());
+    printf("optimization of %s took %sms", config.getName(), end - start, out);
   }
 
   @Override
@@ -85,7 +84,7 @@ public class OptimizeMojo extends Amd4jMojo {
   }
 
   @Override
-  protected Config merge(final String name, final Config config) {
+  protected Config merge(final String name, final Config config) throws IOException {
     super.merge(name, config);
     if (!isEmpty(out)) {
       config.setOut(new File(out.replace("${script.name}", getName(name))));

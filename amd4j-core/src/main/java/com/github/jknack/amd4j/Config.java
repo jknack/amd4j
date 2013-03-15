@@ -23,9 +23,11 @@ import static org.apache.commons.lang3.Validate.notNull;
 
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.io.Writer;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -246,14 +248,22 @@ public class Config {
   /**
    * The output of the optimized file.
    */
-  private File out;
+  private Writer out;
+
+  {
+    initialize();
+  }
 
   /**
    * Initialize default values.
    */
-  {
-    shim = new LinkedHashMap<String, Shim>();
-    paths = new LinkedHashMap<String, String>();
+  void initialize() {
+    if (shim == null) {
+      shim = new LinkedHashMap<String, Shim>();
+    }
+    if (paths == null) {
+      paths = new LinkedHashMap<String, String>();
+    }
     paths.put("module", EMPTY);
     paths.put("require", EMPTY);
   }
@@ -264,8 +274,9 @@ public class Config {
    * @param baseUrl The base url. Required.
    * @param name The module's name. Required.
    * @param out The output file. Required.
+   * @throws IOException If file handler can't be obtained.
    */
-  public Config(final String baseUrl, final String name, final File out) {
+  public Config(final String baseUrl, final String name, final File out) throws IOException {
     setBaseUrl(baseUrl);
     setName(name);
     setOut(out);
@@ -276,8 +287,9 @@ public class Config {
    *
    * @param name The module's name. Required.
    * @param out The output file. Required.
+   * @throws IOException If file handler can't be obtained.
    */
-  public Config(final String name, final File out) {
+  public Config(final String name, final File out) throws IOException {
     setBaseUrl("/");
     setName(name);
     setOut(out);
@@ -367,6 +379,7 @@ public class Config {
       }
       String json = JsonNormalizer.toJson(javaScript, path);
       Config config = mapper.readValue(json, Config.class);
+      config.initialize();
       return config;
     } finally {
       IOUtils.closeQuietly(reader);
@@ -426,7 +439,7 @@ public class Config {
    *
    * @return The output of the optimized file.
    */
-  public File getOut() {
+  public Writer getOut() {
     return out;
   }
 
@@ -544,10 +557,24 @@ public class Config {
    *
    * @param out The output of the optimized file.
    * @return This configuration object.
+   * @throws IOException If file handler can't be obtain.
    */
-  public Config setOut(final File out) {
+  public Config setOut(final File out) throws IOException {
     notNull(out, "The out is required.");
-    this.out = out;
+    this.out = new FileWriter(out);
+    return this;
+  }
+
+  /**
+   * The output of the optimized file.
+   *
+   * @param writer The writer of the optimized file.
+   * @return This configuration object.
+   * @throws IOException If file handler can't be obtain.
+   */
+  public Config setOut(final Writer writer) throws IOException {
+    notNull(writer, "The out is required.");
+    this.out = writer;
     return this;
   }
 

@@ -88,7 +88,7 @@ public class OptimizerCommand extends BaseCommand {
   }
 
   @Override
-  protected Config merge(final Config config) {
+  protected Config merge(final Config config) throws IOException {
     super.merge(config);
     if (out != null) {
       config.setOut(out);

@@ -154,8 +154,9 @@ public abstract class Amd4jMojo extends AbstractMojo {
    *
    * @param config The configuration options.
    * @return The same configuration options.
+   * @throws IOException If file handler can't be obtained.
    */
-  protected Config merge(final String name, final Config config) {
+  protected Config merge(final String name, final Config config) throws IOException {
     if (!isEmpty(name)) {
       config.setName(name);
     }

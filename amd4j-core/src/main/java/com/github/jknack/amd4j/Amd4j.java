@@ -122,9 +122,8 @@ public class Amd4j {
    *
    * @param uri The module uri. Required.
    * @return A module and their dependencies.
-   * @throws IOException If the module can't read.
    */
-  public Module analyze(final URI uri) throws IOException {
+  public Module analyze(final URI uri) {
     notNull(uri, "The config is required.");
 
     return analyze(new Config(uri.toString()));
@@ -135,9 +134,8 @@ public class Amd4j {
    *
    * @param config The configuration options. Required.
    * @return A module and their dependencies.
-   * @throws IOException If the module can't read.
    */
-  public Module analyze(final Config config) throws IOException {
+  public Module analyze(final Config config) {
     notNull(config, "The config is required.");
 
     logger.debug("Tracing dependencies for: {}\n", config.getName());
@@ -152,9 +150,8 @@ public class Amd4j {
    *
    * @param config The configuration options. Required.
    * @return The module graph.
-   * @throws IOException If a file can't be read or write.
    */
-  public Module optimize(final Config config) throws IOException {
+  public Module optimize(final Config config) {
     Module module = analyze(config);
     new Optimizer(config, transformers).walk(module);
     return module;
@@ -168,10 +165,10 @@ public class Amd4j {
    * @param config The configuration options.
    * @param registry The already processed modules.
    * @return A module or null if the module should be skipped.
-   * @throws IOException If a file can't be read or write.
    */
   private Module walk(final String modulePath, final String moduleName, final Config config,
-      final Map<URI, Module> registry) throws IOException {
+      final Map<URI, Module> registry) {
+    try {
     String path = config.resolvePath(modulePath);
     if (Config.EMPTY.equals(path)) {
       logger.debug("skipped: {}", modulePath);
@@ -200,6 +197,15 @@ public class Amd4j {
     }
     logger.debug("{}", uri);
     return module;
+    } catch (AmdException ex) {
+      LinkedList<String> path = new LinkedList<String>();
+      path.add(moduleName);
+      path.addAll(ex.getPath());
+      AmdException rewriteEx = new AmdException(path, ex.getCause());
+      throw rewriteEx;
+    } catch (Exception ex) {
+      throw new AmdException(moduleName, ex);
+    }
   }
 
   /**

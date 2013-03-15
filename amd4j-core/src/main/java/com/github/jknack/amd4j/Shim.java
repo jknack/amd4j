@@ -22,6 +22,7 @@ import static org.apache.commons.lang3.Validate.notEmpty;
 import static org.apache.commons.lang3.Validate.notNull;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -39,7 +40,7 @@ public class Shim {
    * Module's dependencies.
    */
   @JsonProperty
-  private Set<String> deps;
+  private LinkedHashSet<String> deps;
 
   /**
    * The name of the global variable to exports.
@@ -68,7 +69,7 @@ public class Shim {
    */
   public Shim(final String exports, final Set<String> dependencies, final String init) {
     this.exports = notEmpty(exports, "The exports is required.");
-    deps = notNull(dependencies, "The dependencies is required.");
+    deps = new LinkedHashSet<String>(notNull(dependencies, "The dependencies is required."));
     this.init = notEmpty(init, "The init is required.");
   }
 
@@ -80,7 +81,7 @@ public class Shim {
    */
   public Shim(final String exports, final Set<String> dependencies) {
     this.exports = notEmpty(exports, "The exports is required.");
-    deps = notNull(dependencies, "The dependencies is required.");
+    deps = new LinkedHashSet<String>(notNull(dependencies, "The dependencies is required."));
   }
 
   /**

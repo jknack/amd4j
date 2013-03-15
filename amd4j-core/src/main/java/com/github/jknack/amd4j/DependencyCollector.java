@@ -17,6 +17,7 @@
  */
 package com.github.jknack.amd4j;
 
+import static org.apache.commons.io.FilenameUtils.getExtension;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 import java.util.Collections;
@@ -69,19 +70,21 @@ final class DependencyCollector {
        * @return A dependency set.
        */
       public Set<String> collect() {
-        Parser parser = new Parser();
-        AstRoot node = parser.parse(module.content.toString(), module.name, 1);
         if (!isEmpty(module.uri.getScheme())) {
           // report a plugin as a dependency
           dependencies.add(module.uri.getScheme());
         }
-        node.visit(this);
-        // check shim configuration
-        Shim shim = config.getShim(module.name);
-        if (shim != null) {
-          // add dependencies
-          if (shim.dependencies() != null) {
-            dependencies.addAll(shim.dependencies());
+        if ("js".equals(getExtension(module.uri.getPath()))) {
+          Parser parser = new Parser();
+          AstRoot node = parser.parse(module.content.toString(), module.name, 1);
+          node.visit(this);
+          // check shim configuration
+          Shim shim = config.getShim(module.name);
+          if (shim != null) {
+            // add dependencies
+            if (shim.dependencies() != null) {
+              dependencies.addAll(shim.dependencies());
+            }
           }
         }
         return dependencies;
@@ -142,5 +145,4 @@ final class DependencyCollector {
       }
     } .collect();
   }
-
 }

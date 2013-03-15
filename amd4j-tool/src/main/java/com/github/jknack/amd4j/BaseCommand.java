@@ -118,8 +118,9 @@ public abstract class BaseCommand implements Command {
    *
    * @param config The configuration options.
    * @return The same configuration options.
+   * @throws IOException If file handler can't be obtained.
    */
-  protected Config merge(final Config config) {
+  protected Config merge(final Config config) throws IOException {
     if (!isEmpty(name)) {
       config.setName(name);
     }

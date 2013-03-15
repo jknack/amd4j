@@ -19,8 +19,6 @@ package com.github.jknack.amd4j;
 
 import static org.apache.commons.lang3.Validate.notNull;
 
-import java.io.File;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,12 +26,12 @@ import java.util.List;
 import org.apache.commons.io.IOUtils;
 
 /**
- * Merge a module and module's dependencie into a single file.
+ * Merge a module and module's dependencies into a single file.
  *
  * @author edgar.espina
  * @since 0.1.0
  */
-public class Optimizer extends OncePerModuleVisitor<File> {
+public class Optimizer extends OncePerModuleVisitor<Object> {
 
   /**
    * The configuration options.
@@ -65,21 +63,13 @@ public class Optimizer extends OncePerModuleVisitor<File> {
   }
 
   @Override
-  public File walk(final Module module) {
-    boolean success = false;
-    File out = config.getOut();
+  public Object walk(final Module module) {
+    writer = new PrintWriter(config.getOut());
     try {
-      writer = new PrintWriter(out);
       module.traverse(this);
-      success = true;
-      return config.getOut();
-    } catch (IOException ex) {
-      throw new IllegalStateException("Unable to write on " + out, ex);
+      return null;
     } finally {
       IOUtils.closeQuietly(writer);
-      if (!success) {
-        out.delete();
-      }
     }
   }
 

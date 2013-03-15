@@ -17,6 +17,8 @@
  */
 package com.github.jknack.amd4j;
 
+import static org.apache.commons.lang3.StringUtils.join;
+
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +36,7 @@ import org.mozilla.javascript.ast.StringLiteral;
 
 /**
  * Augment a module by inserting the module names into <code>anonymous define</code> functions.
- * The insertation is done by parsing the JavaScript code using the Rhino {@link Parser}.
+ * The insert is done by parsing the JavaScript code using the Rhino {@link Parser}.
  * Finally, if a <code>define</code> statement isn't found and there is a
  * {@link Config#getShim(String)} shim option for the module, the module will be converted to AMD.
  *
@@ -225,10 +227,8 @@ public class AmdTransformer implements Transformer {
     // shim??
     if (!visitor.defineFound) {
       Shim shim = config.getShim(name);
-      if (shim != null) {
-        String defineFn = shim(shim, name);
-        content.append(defineFn);
-      }
+      String defineFn = shim(shim, name);
+      content.append(defineFn);
     }
     return content;
   }
@@ -242,11 +242,16 @@ public class AmdTransformer implements Transformer {
    */
   private static String shim(final Shim shim, final String moduleName) {
     StringBuilder buffer = new StringBuilder();
-    if (shim.init() == null) {
+    if (shim == null) {
+      buffer.append("\ndefine(\"").append(moduleName).append("\", function(){});\n");
+    } else if (shim.init() == null) {
       if (shim.exports() == null) {
-        buffer.append("\ndefine(\"").append(moduleName).append("\", function(){});\n");
+        buffer.append("\ndefine(\"").append(moduleName).append("\"");
+        buffer.append(", function(){});\n");
       } else {
-        buffer.append("\ndefine(\"").append(moduleName).append("\", (function (global) {\n");
+        buffer.append("\ndefine(\"").append(moduleName).append("\"");
+        shimDependencies(buffer, shim);
+        buffer.append(", (function (global) {\n");
         buffer.append("    return function () {\n");
         buffer.append("        var ret, fn;\n");
         buffer.append("        return ret || global.").append(shim.exports()).append(";\n");
@@ -254,7 +259,9 @@ public class AmdTransformer implements Transformer {
         buffer.append("}(this)));\n");
       }
     } else {
-      buffer.append("\ndefine(\"").append(moduleName).append("\", (function (global) {\n");
+      buffer.append("\ndefine(\"").append(moduleName).append("\"");
+      shimDependencies(buffer, shim);
+      buffer.append(", (function (global) {\n");
       buffer.append("    return function () {\n");
       buffer.append("        var ret, fn;\n");
       buffer.append("fn = ").append(shim.init()).append(";\n");
@@ -264,5 +271,17 @@ public class AmdTransformer implements Transformer {
       buffer.append("}(this)));\n");
     }
     return buffer.toString();
+  }
+
+  /**
+   * Append shim dependencies to the buffer.
+   *
+   * @param buffer A buffer.
+   * @param shim A shim object.
+   */
+  private static void shimDependencies(final StringBuilder buffer, final Shim shim) {
+    if (shim.dependencies() != null && shim.dependencies().size() > 0) {
+      buffer.append(", [\"").append(join(shim.dependencies(), "\", \"")).append("\"]");
+    }
   }
 }
