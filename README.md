@@ -117,6 +117,23 @@ what is supported so far?
 * ```text!``` plugin support
 * ```shim``` support
 
+maven
+======
+Stable version: **0.1.0**
+
+
+```xml
+  <dependency>
+    <groupId>com.github.jknack</groupId>
+    <artifactId>amd4j</artifactId>
+    <version>${amd4j-version}</version>
+  </dependency>
+```
+ 
+Development version: **0.1.1-SNAPSHOT**
+
+SNAPSHOT versions are NOT synchronized to Central. If you want to use a snapshot version you need to add the https://oss.sonatype.org/content/repositories/snapshots/ repository to your pom.xml.
+
 dependencies
 ======
 
