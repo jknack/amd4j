@@ -29,6 +29,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.Writer;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
@@ -149,6 +150,12 @@ public class Config {
         literal.setValue(((StringLiteral) value).getValue());
         newValue = literal;
       } else if (value instanceof ArrayLiteral && node.depth() == 6) {
+        // we only want to rewrite shim
+        String parentProperty = ((StringLiteral) ((ObjectProperty) node.getParent().getParent())
+            .getLeft()).getValue();
+        if (!parentProperty.equals("shim")) {
+          return;
+        }
         // handle shortcut syntax where plugins don't exports anything
         ArrayLiteral array = (ArrayLiteral) value;
         ObjectLiteral object = new ObjectLiteral();
@@ -211,7 +218,7 @@ public class Config {
    * http: URL when running in the browser and during an optimization that
    * file should be skipped because it has no dependencies.
    */
-  private Map<String, String> paths;
+  private Map<String, Object> paths;
 
   /**
    * Configure the dependencies and exports for older, traditional "browser globals" scripts that do
@@ -262,7 +269,7 @@ public class Config {
       shim = new LinkedHashMap<String, Shim>();
     }
     if (paths == null) {
-      paths = new LinkedHashMap<String, String>();
+      paths = new LinkedHashMap<String, Object>();
     }
     paths.put("module", EMPTY);
     paths.put("require", EMPTY);
@@ -395,11 +402,14 @@ public class Config {
   public String resolvePath(final String path) {
     notEmpty(path, "The path is required.");
 
-    String realPath = paths.get(path);
-    if (isEmpty(realPath)) {
-      realPath = path;
+    Object value = paths.get(path);
+    if (value instanceof List) {
+      // Path fall back
+      return EMPTY;
+    } else if (isEmpty((String) value)) {
+      value = path;
     }
-    return realPath;
+    return (String) value;
   }
 
   /**
@@ -609,4 +619,28 @@ public class Config {
     paths.put(name, path);
     return this;
   }
+
+  /**
+   * Returns the path for the given name or null if there is no path.
+   *
+   * @param name The path's name or alias. Required.
+   * @return The path for the given name or null if there is no path.
+   */
+  public String path(final String name) {
+    notEmpty(name, "The path's name is required.");
+    return (String) paths.get(name);
+  }
+
+  /**
+   * Returns the path and fallback path for the given name or null if there is no path.
+   *
+   * @param name The path's name or alias. Required.
+   * @return The path and fallback path for the given name or null if there is no path.
+   */
+  @SuppressWarnings("unchecked")
+  public List<String> paths(final String name) {
+    notEmpty(name, "The path's name is required.");
+    return (List<String>) paths.get(name);
+  }
+
 }

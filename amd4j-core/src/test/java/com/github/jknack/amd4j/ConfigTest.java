@@ -5,6 +5,8 @@ import static org.junit.Assert.assertNotNull;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 import org.junit.Test;
 
@@ -50,5 +52,14 @@ public class ConfigTest {
     Config config = Config.parse(new File("src/test/resources/config/require.json.js"));
     assertNotNull(config);
     assertEquals("require.json", config.getName());
+  }
+
+  @Test
+  public void pathFallbacks() throws IOException {
+    Config config = Config.parse(new File("src/test/resources/config/config2.js"));
+    assertNotNull(config);
+    List<String> fallback = config.paths("jquery");
+    assertEquals(Arrays.asList("https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min",
+        "js/components/external/jquery"), fallback);
   }
 }
