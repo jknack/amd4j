@@ -34,7 +34,7 @@ public class RequireOptimizer {
       Main.main(arguments.toArray(new String[arguments.size()]));
     }
     long end = System.currentTimeMillis();
-    logger.info("r.js took {}ms", end - start);
+    logger.info("r.js took {}ms\n", end - start);
   }
 
   private static boolean nodeIfPresent(final List<String> args) throws IOException {

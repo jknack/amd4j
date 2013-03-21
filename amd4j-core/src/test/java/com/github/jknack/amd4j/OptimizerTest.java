@@ -46,6 +46,32 @@ public class OptimizerTest {
   }
 
   @Test
+  public void wall() throws IOException {
+    long start = System.currentTimeMillis();
+    File foutput = new File("target/wall.bundle.js");
+    foutput.delete();
+    new Amd4j()
+        .with(new TextTransformer())
+        .optimize(new Config(".", "wall", foutput).path("editor", Config.EMPTY));
+    long end = System.currentTimeMillis();
+    logger.info("amd4j took: {}ms", end - start);
+
+    assertTrue(foutput.exists());
+
+    Assume.assumeTrue(RequireOptimizer.isNodeJsPresent());
+
+    // node is in the system, validate the output using node.js
+    File fexpected = new File(System.getProperty("user.dir"), "target/wall.expected.js");
+    fexpected.delete();
+    RequireOptimizer.optimize("-o", "name=wall", "out=" + fexpected.getPath(),
+        "baseUrl=.", "paths.editor=" + Config.EMPTY);
+
+    String output = FileUtils.readFileToString(foutput);
+    String expected = FileUtils.readFileToString(fexpected);
+    assertEquals(expected, output);
+  }
+
+  @Test
   public void complex() throws IOException {
     long start = System.currentTimeMillis();
     File foutput = new File("target/complex.bundle.js");

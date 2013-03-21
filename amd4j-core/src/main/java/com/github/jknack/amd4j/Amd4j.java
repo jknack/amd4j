@@ -269,7 +269,7 @@ public class Amd4j {
   /**
    * Creates a {@link URI}.
    *
-   * @param path The dependency's path. It might be preffixed with: <code>schema!</code> where
+   * @param path The dependency's path. It might be prefixed with: <code>schema!</code> where
    *        <code>schema</code> is usually a plugin.
    * @return A new {@link ResourceURI}.
    */

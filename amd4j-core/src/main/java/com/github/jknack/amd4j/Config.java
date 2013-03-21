@@ -402,7 +402,7 @@ public class Config {
   public String resolvePath(final String path) {
     notEmpty(path, "The path is required.");
 
-    Object value = paths.get(path);
+    Object value = paths.get(path.substring(path.indexOf("!") + 1));
     if (value instanceof List) {
       // Path fall back
       return EMPTY;

@@ -54,11 +54,6 @@ public class AmdTransformer implements Transformer {
   public static class AmdVisitor implements NodeVisitor {
 
     /**
-     * Keep track of inserted chunks.
-     */
-    private int offset = 1;
-
-    /**
      * The start offset per each line.
      */
     private List<Integer> lines = new ArrayList<Integer>();
@@ -138,11 +133,10 @@ public class AmdTransformer implements Transformer {
       String useStrict = "use strict";
       if (useStrict.equals(node.getValue()) && !config.isUseStrict()
           && node.getParent() instanceof ExpressionStatement) {
-        int offset = lineAt(node.getLineno() - 1) + this.offset;
+        int offset = lineAt(node.getLineno() - 1);
         int start = content.indexOf(useStrict, offset) - 1;
         int end = content.indexOf(";", start) + 1;
         content.replace(start, end, "");
-        this.offset -= useStrict.length();
       }
       return true;
     }
@@ -193,17 +187,15 @@ public class AmdTransformer implements Transformer {
         }
       }
       // Should we add module's name?
-      int offset = lineAt(node.getLineno() - 1) + node.getLp() + this.offset;
+      int pos = lineAt(node.getLineno() - 1) + node.getLp() + 1;
       if (!hasName) {
         String chunk = "'" + moduleName + "',";
-        content.insert(offset, chunk);
-        offset = chunk.length();
+        content.insert(pos, chunk);
       }
       if (!hasDep) {
-        int newOffset = content.indexOf(",", offset) + 1;
+        int newOffset = content.indexOf(",", pos) + 1;
         String chunk = "[],";
         content.insert(newOffset, chunk);
-        offset = chunk.length();
       }
     }
 
