@@ -10,3 +10,4 @@
 target
 bin
 .classpath
+dependency-reduced-pom.xml
