@@ -28,9 +28,11 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.Writer;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -46,12 +48,6 @@ import org.mozilla.javascript.ast.NodeVisitor;
 import org.mozilla.javascript.ast.ObjectLiteral;
 import org.mozilla.javascript.ast.ObjectProperty;
 import org.mozilla.javascript.ast.StringLiteral;
-
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 
 /**
  * Optimizer configuration options.
@@ -178,28 +174,9 @@ public class Config {
   }
 
   /**
-   * The JSON parser.
-   */
-  private static final ObjectMapper mapper = new ObjectMapper();
-
-  /**
    * Mark a module as "provided", so it wont be included in the final output.
    */
   public static final String EMPTY = "empty:";
-
-  /**
-   * Configure and initialize the JSON parser.
-   */
-  static {
-    mapper.setVisibilityChecker(
-        mapper.getVisibilityChecker()
-            .withFieldVisibility(Visibility.ANY)
-            .withGetterVisibility(Visibility.NONE)
-            .withSetterVisibility(Visibility.NONE)
-        );
-    mapper.configure(SerializationFeature.INDENT_OUTPUT, true);
-    mapper.setSerializationInclusion(Include.NON_NULL);
-  }
 
   /**
    * By default, all modules are located relative to this path. If baseUrl
@@ -224,7 +201,7 @@ public class Config {
    * Configure the dependencies and exports for older, traditional "browser globals" scripts that do
    * not use <code>define</code> to declare the dependencies and set a module value.
    */
-  private Map<String, Shim> shim;
+  private Map<String, Shim> shimConfig;
 
   /**
    * Allow "use strict"; be included in the JavaScript files.
@@ -265,8 +242,8 @@ public class Config {
    * Initialize default values.
    */
   void initialize() {
-    if (shim == null) {
-      shim = new LinkedHashMap<String, Shim>();
+    if (shimConfig == null) {
+      shimConfig = new LinkedHashMap<String, Shim>();
     }
     if (paths == null) {
       paths = new LinkedHashMap<String, Object>();
@@ -330,6 +307,53 @@ public class Config {
   }
 
   /**
+   * Creates a new {@link Config} from a JSON object.
+   *
+   * @param json The json object.
+   * @throws IOException If the out attribute can't be set.
+   */
+  @SuppressWarnings("unchecked")
+  private Config(final Map<String, Object> json) throws IOException {
+    this.baseUrl = (String) json.get("baseUrl");
+
+    // find nested dependencies
+    Boolean findNestedDependencies = (Boolean) json.get("findNestedDependencies");
+    this.findNestedDependencies = findNestedDependencies == null ? false : findNestedDependencies;
+
+    // inlineText
+    Boolean inlineText = (Boolean) json.get("inlineText");
+    this.inlineText = inlineText == null ? true : inlineText;
+
+    // name
+    this.name = (String) json.get("name");
+
+    // out
+    String out = (String) json.get("out");
+    if (out != null) {
+      this.out = new FileWriter(out);
+    }
+
+    // paths
+    this.paths = (Map<String, Object>) json.get("paths");
+
+    // shim
+    Map<String, Map<String, Object>> shimConfig = (Map<String, Map<String, Object>>) json
+        .get("shim");
+    if (shimConfig != null) {
+      this.shimConfig = new LinkedHashMap<String, Shim>();
+      for (Entry<String, Map<String, Object>> shimEntry : shimConfig.entrySet()) {
+        Map<String, Object> shimValue = shimEntry.getValue();
+        Shim shim = new Shim()
+            .setExports((String) shimValue.get("exports"))
+            .setInit((String) shimValue.get("init"))
+            .setDeps((Collection<String>) shimValue.get("deps"));
+
+        this.shimConfig.put(shimEntry.getKey(), shim);
+      }
+    }
+  }
+
+  /**
    * Parse a build.js file and creates a new {@link Config} object.
    *
    * @param build The build.js file. Required.
@@ -385,7 +409,8 @@ public class Config {
         javaScript = "(" + javaScript + ")";
       }
       String json = JsonNormalizer.toJson(javaScript, path);
-      Config config = mapper.readValue(json, Config.class);
+      @SuppressWarnings("unchecked")
+      Config config = new Config((Map<String, Object>) JsonParser.parse(json, path));
       config.initialize();
       return config;
     } finally {
@@ -420,7 +445,7 @@ public class Config {
    * @return A shim option for the given dependency's name or <code>null</code>.
    */
   public Shim getShim(final String name) {
-    return shim.get(notEmpty(name, "The dependency's name is required."));
+    return shimConfig.get(notEmpty(name, "The dependency's name is required."));
   }
 
   /**
@@ -523,7 +548,7 @@ public class Config {
     notEmpty(name, "The name is required.");
     notNull(shim, "The shim is required.");
 
-    this.shim.put(name, shim);
+    this.shimConfig.put(name, shim);
     return this;
   }
 
@@ -543,12 +568,7 @@ public class Config {
 
   @Override
   public String toString() {
-    try {
-      return mapper.writeValueAsString(this);
-    } catch (JsonProcessingException e) {
-      return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
-    }
-
+    return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
   }
 
   /**

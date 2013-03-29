@@ -22,11 +22,10 @@ import static org.apache.commons.lang3.Validate.notEmpty;
 import static org.apache.commons.lang3.Validate.notNull;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Shim configuration options for 'browser globals scripts'.
@@ -39,25 +38,58 @@ public class Shim {
   /**
    * Module's dependencies.
    */
-  @JsonProperty
   private LinkedHashSet<String> deps;
 
   /**
    * The name of the global variable to exports.
    */
-  @JsonProperty
   private String exports;
 
   /**
    * Alternative, use an init function for export a global variable.
    */
-  @JsonProperty
   private String init;
 
   /**
    * Default constructor.
    */
-  public Shim() {
+  protected Shim() {
+  }
+
+  /**
+   * Set a shim dependencies.
+   *
+   * @param deps the shim dependencies.
+   * @return This shim object.
+   */
+  Shim setDeps(final Collection<String> deps) {
+    this.deps = new LinkedHashSet<String>();
+    if (deps != null) {
+      this.deps.addAll(deps);
+    }
+    return this;
+  }
+
+  /**
+   * Set a shim exports attribute.
+   *
+   * @param exports the shim exports attribute.
+   * @return This shim object.
+   */
+  Shim setExports(final String exports) {
+    this.exports = exports;
+    return this;
+  }
+
+  /**
+   * Set the init attribute.
+   *
+   * @param init the shim init attribute.
+   * @return This shim object.
+   */
+  Shim setInit(final String init) {
+    this.init = init;
+    return this;
   }
 
   /**
