@@ -74,6 +74,8 @@ Maven Usage
           <inlineText>true</inlineText>
           <useStrict>false</useStrict>
           <buildFile></buildFile>
+          <!-- One of: none, white (strip comments, spaces and lines) -->
+          <optimize>none</optimize>
 
           <!--file to be processed-->
           <names>

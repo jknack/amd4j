@@ -186,4 +186,14 @@ public abstract class Amd4jMojo extends AbstractMojo {
   protected void printf(final String message, final Object... args) {
     getLog().info(String.format(message, args));
   }
+
+  /**
+   * Print a message to the maven output.
+   *
+   * @param message The message.
+   * @param args The message's arguments.
+   */
+  protected void dprintf(final String message, final Object... args) {
+    getLog().debug(String.format(message, args));
+  }
 }

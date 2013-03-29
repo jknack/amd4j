@@ -230,6 +230,12 @@ public class Config {
   private String name;
 
   /**
+   * Minify/optimize the output. The following values are supported: none, white (strip comment,
+   * spaces and lines). Default: none
+   */
+  private String optimize = "none";
+
+  /**
    * The output of the optimized file.
    */
   private Writer out;
@@ -326,6 +332,10 @@ public class Config {
 
     // name
     this.name = (String) json.get("name");
+
+    // optimize
+    optimize = (String) json.get("optimize");
+    this.optimize = optimize == null ? "none" : optimize;
 
     // out
     String out = (String) json.get("out");
@@ -575,11 +585,31 @@ public class Config {
    * The module to be optimized.
    *
    * @param name The module to be optimized.
-   * @return The module to be optimized.
+   * @return This configuration.
    */
   public Config setName(final String name) {
     this.name = notEmpty(name, "The module's name is required.");
     return this;
+  }
+
+  /**
+   * The minifier/optimizer to use. Defaul is: none.
+   *
+   * @param optimize The optimizer name.
+   * @return This configuration.
+   */
+  public Config setOptimize(final String optimize) {
+    this.optimize = notEmpty(optimize, "The optimize is required.");
+    return this;
+  }
+
+  /**
+   * The minifier/optimizer.
+   *
+   * @return The minifier/optimizer.
+   */
+  public Minifier getOptimize() {
+    return Minifier.get(optimize);
   }
 
   /**

@@ -42,6 +42,11 @@ public class OptimizeMojo extends Amd4jMojo {
   private String out;
 
   /**
+   * The finale output.
+   */
+  private String fout;
+
+  /**
    * Inline text in the final output. Default: true.
    *
    * @parameter
@@ -62,16 +67,24 @@ public class OptimizeMojo extends Amd4jMojo {
    */
   private String buildFile;
 
+  /**
+   * The minifier/optimizer to use. Default is: none.
+   *
+   * @parameter
+   */
+  private String optimize;
+
   @Override
   public void doExecute(final Amd4j amd4j, final Config config) throws IOException {
     isTrue(config.getOut() != null, "The following option is required: %s", "out");
     isTrue(!isEmpty(config.getBaseUrl()), "The following option is required: %s", "baseUrl");
-    printf("optimizing %s...", config.getName());
+    dprintf("optimizing %s...", config.getName());
     long start = System.currentTimeMillis();
     Module module = amd4j.optimize(config);
     long end = System.currentTimeMillis();
-    printf("result:\n%s", module.toStringTree().trim());
-    printf("optimization of %s took %sms", config.getName(), end - start, out);
+    dprintf("result:\n%s", module.toStringTree().trim());
+    printf("found %s dependencies for %s -> %s took %sms", module.getDependencies(true).size(),
+        config.getName(), fout, end - start);
   }
 
   @Override
@@ -87,13 +100,17 @@ public class OptimizeMojo extends Amd4jMojo {
   protected Config merge(final String name, final Config config) throws IOException {
     super.merge(name, config);
     if (!isEmpty(out)) {
-      config.setOut(new File(out.replace("${script.name}", getName(name))));
+      fout = out.replace("${script.name}", getName(name));
+      config.setOut(new File(fout));
     }
     if (inlineText != null) {
       config.setInlineText(inlineText.booleanValue());
     }
     if (useStrict != null) {
       config.setUseStrict(useStrict.booleanValue());
+    }
+    if (optimize != null) {
+      config.setOptimize(optimize);
     }
     return config;
   }

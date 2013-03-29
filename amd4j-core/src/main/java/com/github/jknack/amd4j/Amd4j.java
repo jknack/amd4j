@@ -169,34 +169,34 @@ public class Amd4j {
   private Module walk(final String modulePath, final String moduleName, final Config config,
       final Map<URI, Module> registry) {
     try {
-    String path = config.resolvePath(modulePath);
-    if (Config.EMPTY.equals(path)) {
-      logger.debug("skipped: {}", modulePath);
-      return null;
-    }
-
-    URI uri = resolve(loader, newURI(config.getBaseUrl(), path));
-    Module existing = registry.get(uri);
-    if (existing != null) {
-      logger.debug("included already: {}", modulePath);
-      return existing;
-    }
-    String content = loader.load(uri);
-    Module module = new Module(moduleName, uri, content);
-    registry.put(uri, module);
-
-    // collect dependencies
-    Set<String> unresolvedDependencies = DependencyCollector.collect(config, module);
-    for (String unresolved : unresolvedDependencies) {
-      String dependencyName = unresolved.replace(RELATIVE_EXPRESSION, getPath(moduleName));
-      String dependencyPath = unresolved.replace(RELATIVE_EXPRESSION, getPath(path));
-      Module resolved = walk(dependencyPath, dependencyName, config, registry);
-      if (resolved != null) {
-        module.add(resolved);
+      String path = config.resolvePath(modulePath);
+      if (Config.EMPTY.equals(path)) {
+        logger.debug("skipped: {}", modulePath);
+        return null;
       }
-    }
-    logger.debug("{}", uri);
-    return module;
+
+      URI uri = resolve(loader, newURI(config.getBaseUrl(), path));
+      Module existing = registry.get(uri);
+      if (existing != null) {
+        logger.debug("included already: {}", modulePath);
+        return existing;
+      }
+      String content = loader.load(uri);
+      Module module = new Module(moduleName, uri, content);
+      registry.put(uri, module);
+
+      // collect dependencies
+      Set<String> unresolvedDependencies = DependencyCollector.collect(config, module);
+      for (String unresolved : unresolvedDependencies) {
+        String dependencyName = unresolved.replace(RELATIVE_EXPRESSION, getPath(moduleName));
+        String dependencyPath = unresolved.replace(RELATIVE_EXPRESSION, getPath(path));
+        Module resolved = walk(dependencyPath, dependencyName, config, registry);
+        if (resolved != null) {
+          module.add(resolved);
+        }
+      }
+      logger.debug("{}", uri);
+      return module;
     } catch (AmdException ex) {
       LinkedList<String> path = new LinkedList<String>();
       path.add(moduleName);
@@ -233,7 +233,7 @@ public class Amd4j {
         return candidate;
       }
     }
-    //force a file not found exception
+    // force a file not found exception
     throw new FileNotFoundException(uri.toString());
   }
 

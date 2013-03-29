@@ -59,6 +59,13 @@ public class OptimizerCommand extends BaseCommand {
   private Boolean useStrict;
 
   /**
+   * The Js minifier.
+   */
+  @Parameter(names = "-optimize", description = "Minify/optimize the output. The following values"
+      + "are supported: none, white (strip comment, spaces and lines). Default: none")
+  private String optimize;
+
+  /**
    * An optional build profile.
    */
   @Parameter(description = "[build.js]")
@@ -98,6 +105,9 @@ public class OptimizerCommand extends BaseCommand {
     }
     if (useStrict != null) {
       config.setUseStrict(useStrict.booleanValue());
+    }
+    if (optimize != null) {
+      config.setOptimize(optimize);
     }
     return config;
   }

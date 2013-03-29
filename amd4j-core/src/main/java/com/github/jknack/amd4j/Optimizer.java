@@ -20,6 +20,7 @@ package com.github.jknack.amd4j;
 import static org.apache.commons.lang3.Validate.notNull;
 
 import java.io.PrintWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,7 +32,7 @@ import org.apache.commons.io.IOUtils;
  * @author edgar.espina
  * @since 0.1.0
  */
-public class Optimizer extends OncePerModuleVisitor<Object> {
+public class Optimizer extends OncePerModuleVisitor<CharSequence> {
 
   /**
    * The configuration options.
@@ -46,7 +47,7 @@ public class Optimizer extends OncePerModuleVisitor<Object> {
   /**
    * The writer.
    */
-  private PrintWriter writer;
+  private StringBuilder buffer;
 
   /**
    * Creates a new {@link Optimizer}.
@@ -63,11 +64,19 @@ public class Optimizer extends OncePerModuleVisitor<Object> {
   }
 
   @Override
-  public Object walk(final Module module) {
-    writer = new PrintWriter(config.getOut());
+  public CharSequence walk(final Module module) {
+    buffer = new StringBuilder();
+    PrintWriter writer = null;
     try {
       module.traverse(this);
-      return null;
+      Writer out = config.getOut();
+      Minifier minifier = config.getOptimize();
+      CharSequence minified = minifier.minify(buffer);
+      if (out != null) {
+        writer = new PrintWriter(out);
+        writer.append(minified);
+      }
+      return minified;
     } finally {
       IOUtils.closeQuietly(writer);
     }
@@ -81,6 +90,6 @@ public class Optimizer extends OncePerModuleVisitor<Object> {
         content = transformer.transform(config, module.name, content);
       }
     }
-    writer.append("\n").append(content);
+    buffer.append("\n").append(content);
   }
 }

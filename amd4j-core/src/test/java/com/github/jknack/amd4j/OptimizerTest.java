@@ -104,6 +104,19 @@ public class OptimizerTest {
     String output = FileUtils.readFileToString(foutput);
     String expected = FileUtils.readFileToString(fexpected);
     assertEquals(expected, output);
+  }
 
+  @Test
+  public void zOptimized() throws IOException {
+    long start = System.currentTimeMillis();
+    File foutput = new File("target/z.optimized.js");
+    foutput.delete();
+    new Amd4j()
+        .with(new TextTransformer())
+        .optimize(new Config(".", "z", foutput).setOptimize("white"));
+    long end = System.currentTimeMillis();
+    logger.info("amd4j took: {}ms", end - start);
+
+    assertTrue(foutput.exists());
   }
 }
