@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <parent>
     <groupId>com.github.jknack</groupId>
@@ -12,6 +13,77 @@
   <packaging>jar</packaging>
 
   <name>amd4j-core</name>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>2.0</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <artifactSet>
+                <includes>
+                  <include>org.mozilla:rhino</include>
+                </includes>
+              </artifactSet>
+              <filters>
+                <filter>
+                  <artifact>org.mozilla:rhino</artifact>
+                  <includes>
+                    <include>org/mozilla/javascript/Parser*.*</include>
+                    <include>org/mozilla/javascript/Node*.*</include>
+                    <include>org/mozilla/javascript/EvaluatorException*.*</include>
+                    <include>org/mozilla/javascript/RhinoException*.*</include>
+                    <include>org/mozilla/javascript/CompilerEnvirons*.*</include>
+                    <include>org/mozilla/javascript/ErrorReporter*.*</include>
+                    <include>org/mozilla/javascript/DefaultErrorReporter*.*</include>
+                    <include>org/mozilla/javascript/EcmaError*.*</include>
+                    <include>org/mozilla/javascript/TokenStream*.*</include>
+                    <include>org/mozilla/javascript/Token*.*</include>
+                    <include>org/mozilla/javascript/ObjToIntMap*.*</include>
+                    <include>org/mozilla/javascript/ScriptRuntime*.*</include>
+                    <include>org/mozilla/javascript/Scriptable*.*</include>
+                    <include>org/mozilla/javascript/WrappedException*.*</include>
+                    <include>org/mozilla/javascript/ConstProperties*.*</include>
+                    <include>org/mozilla/javascript/TopLevel*.*</include>
+                    <include>org/mozilla/javascript/ImporterTopLevel*.*</include>
+                    <include>org/mozilla/javascript/IdScriptableObject*.*</include>
+                    <include>org/mozilla/javascript/IdFunctionCall*.*</include>
+                    <include>org/mozilla/javascript/JavaScriptException*.*</include>
+                    <include>org/mozilla/javascript/NativeCall*.*</include>
+                    <include>org/mozilla/javascript/NativeObject*.*</include>
+                    <include>org/mozilla/javascript/BaseFunction*.*</include>
+                    <include>org/mozilla/javascript/Function*.*</include>
+                    <include>org/mozilla/javascript/Callable*.*</include>
+                    <include>org/mozilla/javascript/NativeString*.*</include>
+                    <include>org/mozilla/javascript/NativeNumber*.*</include>
+                    <include>org/mozilla/javascript/NativeBoolean*.*</include>
+                    <include>org/mozilla/javascript/Kit*.*</include>
+                    <include>org/mozilla/javascript/debug/DebuggableObject*.*</include>
+                    <include>org/mozilla/javascript/xml/XMLObject*.*</include>
+                    <include>org/mozilla/javascript/ast/**</include>
+                    <include>org/mozilla/javascript/json/**</include>
+                  </includes>
+                </filter>
+              </filters>
+              <relocations>
+                <relocation>
+                  <pattern>org.mozilla.javascript</pattern>
+                  <shadedPattern>${project.groupId}.mozilla.javascript</shadedPattern>
+                </relocation>
+              </relocations>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 
   <dependencies>
     <dependency>
