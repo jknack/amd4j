@@ -1,4 +1,4 @@
-amd4j
+amd4j [![Build Status](https://travis-ci.org/jknack/amd4j.png?branch=master)](https://travis-ci.org/jknack/amd4j)
 ======
 
 A command line tool for running JavaScript scripts that use the [Asychronous Module Defintion API (AMD)](https://github.com/amdjs/amdjs-api/wiki/AMD) for declaring and using JavaScript modules and regular JavaScript script files.
