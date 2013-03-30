@@ -70,11 +70,12 @@ Maven Usage
         <version>${amd4j-version}</version>
         <configuration>
           <baseUrl>src/webapp/js</baseUrl>
-          <out>target/${script.name}.opt.js</out>
+          <!-- ${script.name} will be replaced by home and page -->
+          <out>${project.build.directory}/${project.build.finalName}/${script.name}.opt.js</out>
           <inlineText>true</inlineText>
           <useStrict>false</useStrict>
           <buildFile></buildFile>
-          <!-- One of: none, white (strip comments, spaces and lines) -->
+          <!-- One of: none, white (strip comments, spaces and lines), closure (simple optimizations),  closure.advanced, closure.white -->
           <optimize>none</optimize>
 
           <!--file to be processed-->
@@ -102,7 +103,7 @@ Maven Usage
     </plugins>
   </build>
 ```
-The plugin will generate two files: ```target/home.opt.js``` and ```target/page.opt.js```
+The plugin will generate two files: ```target/${project.build.finalName}/home.opt.js``` and ```target/${project.build.finalName}/page.opt.js```
 
 **Analyzing an AMD script**:
 
@@ -121,7 +122,7 @@ what is supported so far?
 
 maven
 ======
-Stable version: **0.1.0**
+Stable version: **0.1.1**
 
 
 ```xml
@@ -132,7 +133,7 @@ Stable version: **0.1.0**
   </dependency>
 ```
  
-Development version: **0.1.1-SNAPSHOT**
+Development version: **0.1.2-SNAPSHOT**
 
 SNAPSHOT versions are NOT synchronized to Central. If you want to use a snapshot version you need to add the https://oss.sonatype.org/content/repositories/snapshots/ repository to your pom.xml.
 
@@ -143,10 +144,6 @@ dependencies
 +- org.apache.commons:commons-lang3:jar:3.1:compile
 +- org.slf4j:slf4j-api:jar:1.6.4:compile
 +- commons-io:commons-io:jar:2.4:compile
-+- org.mozilla:rhino:jar:1.7R3:compile
-+- com.fasterxml.jackson.core:jackson-databind:jar:2.1.0:compile
-|  +- com.fasterxml.jackson.core:jackson-annotations:jar:2.1.0:compile
-|  \- com.fasterxml.jackson.core:jackson-core:jar:2.1.0:compile
 ```
 
 help and support
