@@ -16,7 +16,7 @@
   <dependencies>
     <dependency>
       <groupId>com.github.jknack</groupId>
-      <artifactId>amd4j-core</artifactId>
+      <artifactId>amd4j-closure</artifactId>
       <version>${project.version}</version>
     </dependency>
 
@@ -42,6 +42,7 @@
     <dependency>
       <groupId>org.easymock</groupId>
       <artifactId>easymock</artifactId>
+      <scope>test</scope>
     </dependency>
 
     <dependency>
@@ -102,6 +103,7 @@
                     <exclude>META-INF/*.sf</exclude>
                     <exclude>META-INF/*.inf</exclude>
                     <exclude>META-INF/*.rsa</exclude>
+                    <exclude>org/mozilla/classfile/*</exclude>
                   </excludes>
                 </filter>
               </filters>
@@ -110,7 +112,6 @@
                   <mainClass>com.github.jknack.amd4j.Main</mainClass>
                 </transformer>
               </transformers>
-              <minimizeJar>true</minimizeJar>
             </configuration>
           </execution>
         </executions>

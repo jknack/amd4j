@@ -27,6 +27,7 @@ import java.util.List;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
+import com.google.javascript.jscomp.CompilationLevel;
 
 /**
  * Run the optimize command.
@@ -37,6 +38,12 @@ import com.beust.jcommander.Parameters;
 @Parameters(commandNames = "-o", separators = "=")
 public class OptimizerCommand extends BaseCommand {
 
+  static {
+    Minifier.register("closure.white", new ClosureMinifier(CompilationLevel.WHITESPACE_ONLY));
+    Minifier.register("closure", new ClosureMinifier(CompilationLevel.SIMPLE_OPTIMIZATIONS));
+    Minifier.register("closure.advanced", new ClosureMinifier(
+        CompilationLevel.ADVANCED_OPTIMIZATIONS));
+  }
   /**
    * The output's file.
    */
