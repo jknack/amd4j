@@ -24,6 +24,8 @@ import static org.apache.commons.lang3.Validate.isTrue;
 import java.io.File;
 import java.io.IOException;
 
+import com.google.javascript.jscomp.CompilationLevel;
+
 /**
  * Optimize an AMD script file.
  *
@@ -33,10 +35,18 @@ import java.io.IOException;
  */
 public class OptimizeMojo extends Amd4jMojo {
 
+  static {
+    Minifier.register("closure.white", new ClosureMinifier(CompilationLevel.WHITESPACE_ONLY));
+    Minifier.register("closure", new ClosureMinifier(CompilationLevel.SIMPLE_OPTIMIZATIONS));
+    Minifier.register("closure.advanced", new ClosureMinifier(
+        CompilationLevel.ADVANCED_OPTIMIZATIONS));
+  }
+
   /**
    * The output's file.
    *
    * @parameter
+   *   expression="${project.build.directory}/${project.build.finalName}/${script.name}.opt.js"
    * @required
    */
   private String out;
@@ -99,9 +109,11 @@ public class OptimizeMojo extends Amd4jMojo {
   @Override
   protected Config merge(final String name, final Config config) throws IOException {
     super.merge(name, config);
-    if (!isEmpty(out)) {
-      fout = out.replace("${script.name}", getName(name));
-      config.setOut(new File(fout));
+    if (!isEmpty(this.out)) {
+      fout = this.out.replace("${script.name}", getName(name));
+      File out = new File(fout);
+      out.getParentFile().mkdirs();
+      config.setOut(out);
     }
     if (inlineText != null) {
       config.setInlineText(inlineText.booleanValue());

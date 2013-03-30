@@ -71,7 +71,7 @@ public class Optimizer extends OncePerModuleVisitor<CharSequence> {
       module.traverse(this);
       Writer out = config.getOut();
       Minifier minifier = config.getOptimize();
-      CharSequence minified = minifier.minify(buffer);
+      CharSequence minified = minifier.minify(config, buffer);
       if (out != null) {
         writer = new PrintWriter(out);
         writer.append(minified);

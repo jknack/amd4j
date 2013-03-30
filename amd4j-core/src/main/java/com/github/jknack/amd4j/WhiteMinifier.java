@@ -17,6 +17,8 @@
  */
 package com.github.jknack.amd4j;
 
+import static org.apache.commons.io.FilenameUtils.removeExtension;
+
 import org.mozilla.javascript.Parser;
 import org.mozilla.javascript.ast.AstRoot;
 
@@ -26,12 +28,13 @@ import org.mozilla.javascript.ast.AstRoot;
  * @author edgar.espina
  * @since 0.2.0
  */
-public class JSMinifier extends Minifier {
+public class WhiteMinifier extends Minifier {
 
   @Override
-  public CharSequence minify(final CharSequence input) {
+  public CharSequence minify(final Config config, final CharSequence input) {
     Parser parser = new Parser();
-    AstRoot tree = parser.parse(input.toString(), "", 1);
+    String fname = removeExtension(config.getName()) + ".js";
+    AstRoot tree = parser.parse(input.toString(), fname, 1);
 
     return strip(tree.toSource());
   }

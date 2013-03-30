@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.github.jknack</groupId>
@@ -18,6 +19,7 @@
 
   <modules>
     <module>amd4j-core</module>
+    <module>amd4j-closure</module>
     <module>amd4j-tool</module>
     <module>amd4j-maven-plugin</module>
   </modules>
@@ -87,13 +89,20 @@
         <version>2.4</version>
       </dependency>
 
-    <!-- Rhino -->
+      <!-- Rhino -->
       <dependency>
         <groupId>org.mozilla</groupId>
         <artifactId>rhino</artifactId>
         <version>1.7R3</version>
       </dependency>
 
+      <!-- Google closure compiler -->
+      <dependency>
+        <groupId>com.google.javascript</groupId>
+        <artifactId>closure-compiler</artifactId>
+        <version>v20130227</version>
+      </dependency>
+    
       <!-- Test dependencies -->
       <dependency>
         <groupId>ch.qos.logback</groupId>

@@ -36,7 +36,7 @@ public abstract class Minifier {
    */
   public static final Minifier NONE = new Minifier() {
     @Override
-    public CharSequence minify(final CharSequence input) {
+    public CharSequence minify(final Config config, final CharSequence input) {
       return input;
     }
   };
@@ -49,16 +49,17 @@ public abstract class Minifier {
   static {
     register("none", NONE);
 
-    register("white", new JSMinifier());
+    register("white", new WhiteMinifier());
   }
 
   /**
    * Minify/Optimize JavaScript code.
    *
+   * @param config The configuration options.
    * @param input The JavaScript code.
    * @return A minified output.
    */
-  public abstract CharSequence minify(CharSequence input);
+  public abstract CharSequence minify(Config config, CharSequence input);
 
   /**
    * Get a minifier by name.
