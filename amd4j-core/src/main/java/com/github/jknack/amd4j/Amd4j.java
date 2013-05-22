@@ -20,13 +20,10 @@ package com.github.jknack.amd4j;
 import static org.apache.commons.io.FilenameUtils.getExtension;
 import static org.apache.commons.io.FilenameUtils.getPath;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
-import static org.apache.commons.lang3.Validate.notEmpty;
 import static org.apache.commons.lang3.Validate.notNull;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.URI;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -120,13 +117,13 @@ public class Amd4j {
   /**
    * Analyze a module by collecting all the dependencies.
    *
-   * @param uri The module uri. Required.
+   * @param name The module name. Required.
    * @return A module and their dependencies.
    */
-  public Module analyze(final URI uri) {
-    notNull(uri, "The config is required.");
+  public Module analyze(final String name) {
+    notNull(name, "The config is required.");
 
-    return analyze(new Config(uri.toString()));
+    return analyze(new Config(name.toString()));
   }
 
   /**
@@ -140,7 +137,7 @@ public class Amd4j {
 
     logger.debug("Tracing dependencies for: {}\n", config.getName());
     Module module = walk(config.getName(), config.getName(), config,
-        new HashMap<URI, Module>());
+        new HashMap<ResourceURI, Module>());
     return module;
   }
 
@@ -167,7 +164,7 @@ public class Amd4j {
    * @return A module or null if the module should be skipped.
    */
   private Module walk(final String modulePath, final String moduleName, final Config config,
-      final Map<URI, Module> registry) {
+      final Map<ResourceURI, Module> registry) {
     try {
       String path = config.resolvePath(modulePath);
       if (Config.EMPTY.equals(path)) {
@@ -175,7 +172,7 @@ public class Amd4j {
         return null;
       }
 
-      URI uri = resolve(loader, newURI(config.getBaseUrl(), path));
+      ResourceURI uri = resolve(loader, ResourceURI.create(config.getBaseUrl(), path));
       Module existing = registry.get(uri);
       if (existing != null) {
         logger.debug("included already: {}", modulePath);
@@ -217,18 +214,18 @@ public class Amd4j {
    * @return An existing uri for the candidate uri.
    * @throws IOException If the uri can't be resolved.
    */
-  private static URI resolve(final ResourceLoader loader, final URI uri)
+  private static ResourceURI resolve(final ResourceLoader loader, final ResourceURI uri)
       throws IOException {
     String path = uri.getPath();
-    LinkedList<URI> candidates = new LinkedList<URI>();
+    LinkedList<ResourceURI> candidates = new LinkedList<ResourceURI>();
     candidates.add(uri);
-    URI alternative = URI.create(uri.toString() + ".js");
+    ResourceURI alternative = ResourceURI.create(uri.toString() + ".js");
     if (isEmpty(getExtension(path))) {
       candidates.addFirst(alternative);
     } else {
       candidates.addLast(alternative);
     }
-    for (URI candidate : candidates) {
+    for (ResourceURI candidate : candidates) {
       if (loader.exists(candidate)) {
         return candidate;
       }
@@ -237,46 +234,4 @@ public class Amd4j {
     throw new FileNotFoundException(uri.toString());
   }
 
-  /**
-   * Creates a {@link URI}.
-   *
-   * @param baseUrl The base url.
-   * @param path The dependency's path. It might be preffixed with: <code>schema!</code> where
-   *        <code>schema</code> is usually a plugin.
-   * @return A new {@link ResourceURI}.
-   */
-  private static URI newURI(final String baseUrl, final String path) {
-    notEmpty(baseUrl, "The baseUrl is required.");
-    String normBaseUrl = baseUrl;
-    if (".".equals(normBaseUrl)) {
-      normBaseUrl = File.separator;
-    }
-    if (!normBaseUrl.startsWith(File.separator)) {
-      normBaseUrl = File.separator + normBaseUrl;
-    }
-    if (!normBaseUrl.endsWith(File.separator)) {
-      normBaseUrl += File.separator;
-    }
-    int idx = Math.max(0, path.indexOf('!') + 1);
-    StringBuilder uri = new StringBuilder(path);
-    if (uri.charAt(idx) == File.separatorChar) {
-      uri.deleteCharAt(idx);
-    }
-    uri.insert(idx, normBaseUrl);
-    return newURI(uri.toString());
-  }
-
-  /**
-   * Creates a {@link URI}.
-   *
-   * @param path The dependency's path. It might be prefixed with: <code>schema!</code> where
-   *        <code>schema</code> is usually a plugin.
-   * @return A new {@link ResourceURI}.
-   */
-  private static URI newURI(final String path) {
-    notEmpty(path, "The path is required.");
-
-    String uri = path.replace("!", ":");
-    return URI.create(uri);
-  }
 }

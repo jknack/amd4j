@@ -1,7 +1,6 @@
 package com.github.jknack.amd4j;
 
 import java.io.IOException;
-import java.net.URI;
 
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -19,7 +18,7 @@ public class AnalysisTest {
     long start = System.currentTimeMillis();
     Module module = new Amd4j()
         .with(new TextTransformer())
-        .analyze(URI.create("/z"));
+        .analyze("/z");
     long end = System.currentTimeMillis();
 
     logger.info("{}", module.toStringTree());

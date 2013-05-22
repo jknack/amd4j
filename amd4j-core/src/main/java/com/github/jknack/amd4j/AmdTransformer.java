@@ -19,7 +19,6 @@ package com.github.jknack.amd4j;
 
 import static org.apache.commons.lang3.StringUtils.join;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -202,7 +201,7 @@ public class AmdTransformer implements Transformer {
   }
 
   @Override
-  public boolean apply(final URI uri) {
+  public boolean apply(final ResourceURI uri) {
     return true;
   }
 

@@ -17,7 +17,6 @@
  */
 package com.github.jknack.amd4j;
 
-import java.net.URI;
 
 /**
  * Append a ';' to a module.
@@ -28,7 +27,7 @@ import java.net.URI;
 public class SemicolonAppenderPlugin implements Transformer {
 
   @Override
-  public boolean apply(final URI uri) {
+  public boolean apply(final ResourceURI uri) {
     return true;
   }
 

@@ -17,8 +17,6 @@
  */
 package com.github.jknack.amd4j;
 
-import java.net.URI;
-
 import org.apache.commons.lang3.text.translate.AggregateTranslator;
 import org.apache.commons.lang3.text.translate.CharSequenceTranslator;
 import org.apache.commons.lang3.text.translate.EntityArrays;
@@ -54,8 +52,8 @@ public class TextTransformer implements Transformer {
       );
 
   @Override
-  public boolean apply(final URI uri) {
-    return "text".equals(uri.getScheme());
+  public boolean apply(final ResourceURI uri) {
+    return "text".equals(uri.getPrefix());
   }
 
   @Override

@@ -17,7 +17,6 @@
  */
 package com.github.jknack.amd4j;
 
-import java.net.URI;
 
 /**
  * A transformer can modify the content of a {@link Module}.
@@ -35,7 +34,7 @@ public interface Transformer {
    * @param uri The resource uri. Not null.
    * @return True, if the transformer apply for the given uri.
    */
-  boolean apply(URI uri);
+  boolean apply(ResourceURI uri);
 
   /**
    * Transform module content and return a new or modified {@link StringBuilder}.
