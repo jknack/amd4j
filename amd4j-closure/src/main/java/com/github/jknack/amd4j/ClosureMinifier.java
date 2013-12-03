@@ -31,6 +31,7 @@ import java.util.logging.Level;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,59 +75,59 @@ public class ClosureMinifier extends Minifier {
    * Taken from: com.google.javascript.jscomp.CommandLineRunner
    */
   private static final List<String> DEFAULT_EXTERNS_NAMES = ImmutableList.of(
-    // JS externs
-    "es3.js",
-    "es5.js",
+      // JS externs
+      "es3.js",
+      "es5.js",
 
-    // Event APIs
-    "w3c_event.js",
-    "w3c_event3.js",
-    "gecko_event.js",
-    "ie_event.js",
-    "webkit_event.js",
-    "w3c_device_sensor_event.js",
+      // Event APIs
+      "w3c_event.js",
+      "w3c_event3.js",
+      "gecko_event.js",
+      "ie_event.js",
+      "webkit_event.js",
+      "w3c_device_sensor_event.js",
 
-    // DOM apis
-    "w3c_dom1.js",
-    "w3c_dom2.js",
-    "w3c_dom3.js",
-    "gecko_dom.js",
-    "ie_dom.js",
-    "webkit_dom.js",
+      // DOM apis
+      "w3c_dom1.js",
+      "w3c_dom2.js",
+      "w3c_dom3.js",
+      "gecko_dom.js",
+      "ie_dom.js",
+      "webkit_dom.js",
 
-    // CSS apis
-    "w3c_css.js",
-    "gecko_css.js",
-    "ie_css.js",
-    "webkit_css.js",
+      // CSS apis
+      "w3c_css.js",
+      "gecko_css.js",
+      "ie_css.js",
+      "webkit_css.js",
 
-    // Top-level namespaces
-    "google.js",
+      // Top-level namespaces
+      "google.js",
 
-    "chrome.js",
+      "chrome.js",
 
-    "deprecated.js",
-    "fileapi.js",
-    "flash.js",
-    "gears_symbols.js",
-    "gears_types.js",
-    "gecko_xml.js",
-    "html5.js",
-    "ie_vml.js",
-    "iphone.js",
-    "webstorage.js",
-    "w3c_anim_timing.js",
-    "w3c_css3d.js",
-    "w3c_elementtraversal.js",
-    "w3c_geolocation.js",
-    "w3c_indexeddb.js",
-    "w3c_navigation_timing.js",
-    "w3c_range.js",
-    "w3c_selectors.js",
-    "w3c_xml.js",
-    "window.js",
-    "webkit_notifications.js",
-    "webgl.js");
+      "deprecated.js",
+      "fileapi.js",
+      "flash.js",
+      "gears_symbols.js",
+      "gears_types.js",
+      "gecko_xml.js",
+      "html5.js",
+      "ie_vml.js",
+      "iphone.js",
+      "webstorage.js",
+      "w3c_anim_timing.js",
+      "w3c_css3d.js",
+      "w3c_elementtraversal.js",
+      "w3c_geolocation.js",
+      "w3c_indexeddb.js",
+      "w3c_navigation_timing.js",
+      "w3c_range.js",
+      "w3c_selectors.js",
+      "w3c_xml.js",
+      "window.js",
+      "webkit_notifications.js",
+      "webgl.js");
 
   /**
    * A cached copy of default externs source files.
@@ -163,7 +164,7 @@ public class ClosureMinifier extends Minifier {
 
     String fname = removeExtension(config.getName()) + ".js";
     Result result = compiler.compile(defaultExterns,
-          Arrays.asList(SourceFile.fromCode(fname, source.toString())), options);
+        Arrays.asList(SourceFile.fromCode(fname, source.toString())), options);
     if (result.success) {
       return compiler.toSource();
     }
@@ -174,39 +175,45 @@ public class ClosureMinifier extends Minifier {
   /**
    * Build the default list of google closure external variable files.
    * Taken from: com.google.javascript.jscomp.CommandLineRunner
+   *
    * @return a mutable list of source files.
    * @throws IOException On error when working with externs.zip
    */
   protected List<SourceFile> getDefaultExterns() throws IOException {
-    InputStream input = CommandLineRunner.class.getResourceAsStream("/externs.zip");
-    notNull(input, "The eterns.zip file was not found within the closure classpath");
+    ZipInputStream zip = null;
+    try {
+      InputStream input = CommandLineRunner.class.getResourceAsStream("/externs.zip");
+      notNull(input, "The externs.zip file was not found within the closure classpath");
 
-    ZipInputStream zip = new ZipInputStream(input);
-    Map<String, SourceFile> externsMap = Maps.newHashMap();
-    ZipEntry entry = zip.getNextEntry();
-    while (entry != null) {
-      BufferedInputStream entryStream = new BufferedInputStream(
-          ByteStreams.limit(zip, entry.getSize()));
-      externsMap.put(entry.getName(),
-          SourceFile.fromInputStream(
-              // Give the files an odd prefix, so that they do not conflict
-              // with the user's files.
-              "externs.zip//" + entry.getName(),
-              entryStream));
-      entry = zip.getNextEntry();
+      zip = new ZipInputStream(input);
+      Map<String, SourceFile> externsMap = Maps.newHashMap();
+      ZipEntry entry = zip.getNextEntry();
+      while (entry != null) {
+        BufferedInputStream entryStream = new BufferedInputStream(
+            ByteStreams.limit(zip, entry.getSize()));
+        externsMap.put(entry.getName(),
+            SourceFile.fromInputStream(
+                // Give the files an odd prefix, so that they do not conflict
+                // with the user's files.
+                "externs.zip//" + entry.getName(),
+                entryStream));
+        entry = zip.getNextEntry();
+      }
+
+      Preconditions.checkState(
+          externsMap.keySet().equals(Sets.newHashSet(DEFAULT_EXTERNS_NAMES)),
+          "Externs zip must match our hard-coded list of externs.");
+
+      // Order matters, so the resources must be added to the result list
+      // in the expected order.
+      List<SourceFile> externs = Lists.newArrayList();
+      for (String key : DEFAULT_EXTERNS_NAMES) {
+        externs.add(externsMap.get(key));
+      }
+
+      return externs;
+    } finally {
+      IOUtils.closeQuietly(zip);
     }
-
-    Preconditions.checkState(
-        externsMap.keySet().equals(Sets.newHashSet(DEFAULT_EXTERNS_NAMES)),
-        "Externs zip must match our hard-coded list of externs.");
-
-    // Order matters, so the resources must be added to the result list
-    // in the expected order.
-    List<SourceFile> externs = Lists.newArrayList();
-    for (String key : DEFAULT_EXTERNS_NAMES) {
-      externs.add(externsMap.get(key));
-    }
-
-    return externs;
   }
 }
