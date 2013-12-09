@@ -20,7 +20,6 @@ package com.github.jknack.amd4j;
 import static org.apache.commons.lang3.Validate.notEmpty;
 import static org.apache.commons.lang3.Validate.notNull;
 
-import java.io.File;
 import java.net.URI;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -33,6 +32,9 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
  * @since 0.3.0
  */
 public final class ResourceURI {
+
+  /** Default path separator. */
+  private static final String SEPARATOR = "/";
 
   /**
    * The resource path. Required.
@@ -104,17 +106,17 @@ public final class ResourceURI {
     notEmpty(baseUrl, "The baseUrl is required.");
     String normBaseUrl = baseUrl;
     if (".".equals(normBaseUrl)) {
-      normBaseUrl = File.separator;
+      normBaseUrl = SEPARATOR;
     }
-    if (!normBaseUrl.startsWith(File.separator)) {
-      normBaseUrl = File.separator + normBaseUrl;
+    if (!normBaseUrl.startsWith(SEPARATOR)) {
+      normBaseUrl = SEPARATOR + normBaseUrl;
     }
-    if (!normBaseUrl.endsWith(File.separator)) {
-      normBaseUrl += File.separator;
+    if (!normBaseUrl.endsWith(SEPARATOR)) {
+      normBaseUrl += SEPARATOR;
     }
     int idx = Math.max(0, path.indexOf('!') + 1);
     StringBuilder uri = new StringBuilder(path);
-    if (uri.charAt(idx) == File.separatorChar) {
+    if (uri.charAt(idx) == SEPARATOR.charAt(0)) {
       uri.deleteCharAt(idx);
     }
     uri.insert(idx, normBaseUrl);
